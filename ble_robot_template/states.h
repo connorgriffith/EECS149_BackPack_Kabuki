@@ -12,6 +12,10 @@
 
 typedef enum {
     OFF=0,
+    FORWARD,
+    BACKWARD,
+    RIGHT,
+    LEFT
 } states;
 
 #endif /* STATES_H_ */
