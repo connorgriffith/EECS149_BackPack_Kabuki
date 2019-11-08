@@ -1,4 +1,3 @@
-<<<<<<< HEAD
 #Follower Kobuki BLE Implementation
 ==============
 
@@ -8,15 +7,4 @@ The leader Kobuki advertises manufacturer data (specified by the payload's type)
 
 ###As of 11/7/19:
 The follower Kobuki can successfully receive the correct transmitted advertisements from the leader Kobuki.
-=======
-BLE RX Example
-==============
 
-Receives BLE advertisements. Advertisements are broadcast transmissions used to
-discover the device which can also include up to 23 bytes of arbitrary payload
-data.
-
-This app can receive advertisements from anything, but is particularly looking
-for another Buckler running the BLE TX Example application.
-
->>>>>>> 144d748381dd85e4e949d9f51b9875b34395b133
