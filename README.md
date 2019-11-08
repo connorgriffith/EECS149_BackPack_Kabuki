@@ -1,2 +1,2 @@
-#Follow the Kobuki Leader (source code)
+Follow the Kobuki Leader (source code)
 ================
