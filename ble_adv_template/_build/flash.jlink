@@ -1,0 +1,5 @@
+r
+loadfile _build/ble_adv_template_sdk15_s132.hex 
+r
+g
+exit
