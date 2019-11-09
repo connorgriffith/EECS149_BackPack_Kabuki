@@ -1,4 +1,4 @@
-_build/nrf_log_backend_rtt.o: \
+_build/nrf_log_backend_rtt.o-debug: \
  ../../nrf52x-base//sdk/nrf5_sdk_15.3.0/components/libraries/log/src/nrf_log_backend_rtt.c \
  ../../nrf52x-base//sdk/nrf5_sdk_15.3.0/components/libraries/util/sdk_common.h \
  /usr/lib/gcc/arm-none-eabi/7.3.1/include/stdint.h \

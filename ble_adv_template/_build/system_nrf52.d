@@ -1,4 +1,4 @@
-_build/system_nrf52.o: \
+_build/system_nrf52.o-debug: \
  ../../nrf52x-base//sdk/nrf5_sdk_15.3.0/modules/nrfx/mdk/system_nrf52.c \
  /usr/lib/gcc/arm-none-eabi/7.3.1/include/stdint.h \
  /usr/arm-none-eabi/include/stdint.h \

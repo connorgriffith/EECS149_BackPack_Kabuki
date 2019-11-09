@@ -46,12 +46,16 @@ NRF_TWI_MNGR_DEF(twi_mngr_instance, 5, 0);
 const uint8_t LEADER_address[6] = {0xAA, 0xAA, 0x49, 0xE5, 0x98, 0xC0};
 // TODO: implement BLE advertisement callback
 void ble_evt_adv_report(ble_evt_t const* p_ble_evt) {
+
   uint8_t* address = p_ble_evt->evt.gap_evt.params.adv_report.peer_addr.addr;
   if (address[0] == 0xAA && address[1] == 0xAA && address[5] == 0xC0 && address[3] == 0xE5) {
     //printf("%x:%x:%x:%x:%x:%x\n", address.addr[0], address.addr[1], address.addr[2], address.addr[3], address.addr[4], address.addr[5]);
       //ble_data_t data = p_ble_evt->evt.gap_evt.params.adv_report.data;
       // uint8_t* data_addr = data.p_data;
       // uint16_t data_len = data.len;
+
+      display_write("GOT ADV", DISPLAY_LINE_1);
+
       for (int i = 0; i < 6; i++)
       {
         if (LEADER_address[i] != address[i]) {
@@ -137,6 +141,7 @@ int main(void) {
   while(1) {
     // Sleep while SoftDevice handles BLE
     power_manage();
+    display_write("INIT", DISPLAY_LINE_1);
   }
 }
 

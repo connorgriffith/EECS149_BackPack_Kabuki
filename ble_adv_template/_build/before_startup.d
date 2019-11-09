@@ -1,4 +1,4 @@
-_build/before_startup.o: \
+_build/before_startup.o-debug: \
  ../../nrf52x-base//lib/before_startup/before_startup.c \
  /usr/arm-none-eabi/include/stdio.h /usr/arm-none-eabi/include/_ansi.h \
  /usr/arm-none-eabi/include/newlib.h \

@@ -1,4 +1,5 @@
-_build/mmc_nrf.o: ../../nrf52x-base//lib/simple_logger/chanfs/mmc_nrf.c \
+_build/mmc_nrf.o-debug: \
+ ../../nrf52x-base//lib/simple_logger/chanfs/mmc_nrf.c \
  ../../nrf52x-base//sdk/nrf5_sdk_15.3.0/modules/nrfx/mdk/nrf.h \
  ../../nrf52x-base//sdk/nrf5_sdk_15.3.0/modules/nrfx/mdk/nrf52.h \
  ../../nrf52x-base//sdk/nrf5_sdk_15.3.0/components/toolchain/cmsis/include/core_cm4.h \

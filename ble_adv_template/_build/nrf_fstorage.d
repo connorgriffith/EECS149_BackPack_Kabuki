@@ -1,4 +1,4 @@
-_build/nrf_fstorage.o: \
+_build/nrf_fstorage.o-debug: \
  ../../nrf52x-base//sdk/nrf5_sdk_15.3.0/components/libraries/fstorage/nrf_fstorage.c \
  ../../nrf52x-base//make/config/nrf52832/config/sdk_config.h \
  /home/student/buckler/software/boards/buckler_revB/./app_config.h \

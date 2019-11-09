@@ -1,4 +1,4 @@
-_build/nrf_twi_mngr.o: \
+_build/nrf_twi_mngr.o-debug: \
  ../../nrf52x-base//sdk/nrf5_sdk_15.3.0/components/libraries/twi_mngr/nrf_twi_mngr.c \
  ../../nrf52x-base//sdk/nrf5_sdk_15.3.0/components/libraries/util/sdk_common.h \
  /usr/lib/gcc/arm-none-eabi/7.3.1/include/stdint.h \

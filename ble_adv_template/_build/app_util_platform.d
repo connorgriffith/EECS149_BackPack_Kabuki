@@ -1,4 +1,4 @@
-_build/app_util_platform.o: \
+_build/app_util_platform.o-debug: \
  ../../nrf52x-base//sdk/nrf5_sdk_15.3.0/components/libraries/util/app_util_platform.c \
  ../../nrf52x-base//sdk/nrf5_sdk_15.3.0/components/libraries/util/app_util_platform.h \
  /usr/lib/gcc/arm-none-eabi/7.3.1/include/stdint.h \

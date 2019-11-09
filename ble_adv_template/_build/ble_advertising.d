@@ -1,4 +1,4 @@
-_build/ble_advertising.o: \
+_build/ble_advertising.o-debug: \
  ../../nrf52x-base//sdk/nrf5_sdk_15.3.0/components/ble/ble_advertising/ble_advertising.c \
  ../../nrf52x-base//sdk/nrf5_sdk_15.3.0/components/libraries/util/sdk_common.h \
  /usr/lib/gcc/arm-none-eabi/7.3.1/include/stdint.h \
