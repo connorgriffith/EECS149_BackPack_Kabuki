@@ -43,12 +43,12 @@ static simple_ble_config_t ble_config = {
 simple_ble_app_t* simple_ble_app;
 NRF_TWI_MNGR_DEF(twi_mngr_instance, 5, 0);
 
-const uint8_t LEADER_address[6] = {0xAA, 0xAA, 0x49, 0xE5, 0x98, 0xC0};
+const uint8_t LEADER_address[6] = {0x00, 0x00, 0x49, 0xE5, 0x98, 0xC0};
 // TODO: implement BLE advertisement callback
 void ble_evt_adv_report(ble_evt_t const* p_ble_evt) {
 
   uint8_t* address = p_ble_evt->evt.gap_evt.params.adv_report.peer_addr.addr;
-  if (address[0] == 0xAA && address[1] == 0xAA && address[5] == 0xC0 && address[3] == 0xE5) {
+  if (address[0] == 0x00 && address[1] == 0x00 && address[5] == 0xC0 && address[3] == 0xE5) {
     //printf("%x:%x:%x:%x:%x:%x\n", address.addr[0], address.addr[1], address.addr[2], address.addr[3], address.addr[4], address.addr[5]);
       //ble_data_t data = p_ble_evt->evt.gap_evt.params.adv_report.data;
       // uint8_t* data_addr = data.p_data;
@@ -63,6 +63,7 @@ void ble_evt_adv_report(ble_evt_t const* p_ble_evt) {
         }
       }
 
+//We are trying to decode and access signed data...shouldnt this be signed data pointer
      uint8_t* data = p_ble_evt->evt.gap_evt.params.adv_report.data.p_data;
      //printf("Data: %d\n", *data);
      uint32_t length;

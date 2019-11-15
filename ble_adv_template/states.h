@@ -12,10 +12,8 @@
 
 typedef enum {
     OFF=0,
-    FORWARD,
-    BACKWARD,
-    RIGHT,
-    LEFT
+    DRIVING,
+    TURNING
 } states;
 
 #endif /* STATES_H_ */
