@@ -160,25 +160,26 @@ int main(void) {
         if (is_button_pressed(&sensors)) {
           mpu9250_stop_gyro_integration();
           state = OFF;
-        } else if (measure_distance(sensors.leftWheelEncoder, start_distance_encoder) > 0.5) {
+        } else if (traveled > 0.5) {
           state = TURNING;
+          start_distance_encoder = sensors.leftWheelEncoder;
           // nrf_delay_ms(500);
           mpu9250_start_gyro_integration(); 
 
        } else {
           state = DRIVING;
           // perform state-specific actions here
-          uint16_t encoder = sensors.leftWheelEncoder;
+          //uint16_t encoder = sensors.leftWheelEncoder;
           //int angle = (int) mpu9250_read_gyro_integration().z_axis;
 
           // if (angle > 360 || angle < 360) {
           //   angle = 0;
           // }
           
-          char buf[16];
-          snprintf(buf, 15, "%f m\n", traveled);
-          printf(buf);
-          display_write(buf, DISPLAY_LINE_1);
+          char buf1[16];
+          snprintf(buf1, 16, "%f m\n", traveled);
+          printf(buf1);
+          display_write(buf1, DISPLAY_LINE_1);
 
           // char buf[16];
           // snprintf(buf, 16, "%d", angle);
@@ -223,18 +224,19 @@ int main(void) {
 
 
 //Question why did he cast to an unsigned pointer when its is signed data?
-            simple_ble_adv_manuf_data((uint8_t*) &angle, sizeof(angle));
+            // simple_ble_adv_manuf_data((uint8_t*) &angle, sizeof(angle));
+            simple_ble_adv_manuf_data((uint8_t*) &angle, 4);
             //update_gyro = true;
 
         } else {
-            int angle = (int) mpu9250_read_gyro_integration().z_axis;
+            //int angle1 = (int) mpu9250_read_gyro_integration().z_axis;
 
             kobukiDriveDirect(50, -50);
             display_write("TURNING", DISPLAY_LINE_0);
             state = TURNING;
-            int turned = abs(angle);
+            //int turned = abs(angle);
             char buf[16];
-            snprintf(buf, 15, "%d", turned);
+            snprintf(buf, 16, "%d", angle);
             //printf(amount);
             display_write(buf, DISPLAY_LINE_1);
             // simple_ble_adv_manuf_data((uint8_t*) &angle, sizeof(angle));
@@ -245,4 +247,3 @@ int main(void) {
     }
   }
 }
-

@@ -78,6 +78,7 @@ _build/main.o: main.c /usr/lib/gcc/arm-none-eabi/7.3.1/include/stdbool.h \
  ../../nrf52x-base//sdk/nrf5_sdk_15.3.0/components/libraries/util/app_util.h \
  ../../nrf52x-base//sdk/nrf5_sdk_15.3.0/components/libraries/util/sdk_macros.h \
  ../../nrf52x-base//sdk/nrf5_sdk_15.3.0/components/libraries/util/nrf_assert.h \
+ states.h \
  ../../nrf52x-base//sdk/nrf5_sdk_15.3.0/components/libraries/delay/nrf_delay.h \
  ../../nrf52x-base//sdk/nrf5_sdk_15.3.0/modules/nrfx/nrfx.h \
  ../../nrf52x-base//sdk/nrf5_sdk_15.3.0/integration/nrfx/nrfx_config.h \
