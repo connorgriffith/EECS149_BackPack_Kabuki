@@ -181,6 +181,21 @@
 #include "mpu9250.h"
 
 
+// void __attribute__((weak)) scanning_stop(void) {
+//     // static ble_gap_scan_params_t m_scan_params = {
+//     //     .active            = false, // passive scanning (no scan response)
+//     //     .interval          = MSEC_TO_UNITS(100, UNIT_0_625_MS), // interval 100 ms
+//     //     .window            = MSEC_TO_UNITS(100, UNIT_0_625_MS), // window 100 ms
+//     //     .timeout           = BLE_GAP_SCAN_TIMEOUT_UNLIMITED,
+//     //     .scan_phys         = BLE_GAP_PHY_1MBPS,
+//     //     .filter_policy     = BLE_GAP_SCAN_FP_ACCEPT_ALL,
+//     // };
+
+//     ret_code_t err_code = sd_ble_gap_scan_stop();
+//     APP_ERROR_CHECK(err_code);
+//     printf("INSIDE SCANNING STOP");
+// }
+
 // BLE configuration
 // This is mostly irrelevant since we are scanning only
 static simple_ble_config_t ble_config = {
@@ -203,6 +218,8 @@ states next_state;
 KobukiSensors_t sensors = {0};
 int turn_right = -1;  // -1 for turn right; 1 for turn left
 int adv_angle = 0;
+int angle_turned = 0;
+int initial_angle = 0;
 
 void print_state(states current_state){
   switch(current_state){
@@ -263,8 +280,9 @@ void ble_evt_adv_report(ble_evt_t const* p_ble_evt) {
       // display_write(buf, DISPLAY_LINE_1);
 
       //stopScan();
+      
 
-      printf("Should only fire when get advertisement");
+      printf("Should only fire when get advertisement\n");
     }
   }
 }
@@ -312,7 +330,7 @@ int main(void) {
   next_state = OFF;
 
   int delay_count = 0;
-  int angle_turned = 0;
+  
 
   // TODO: Start scanning
   //BLE Event above will now be called whenever there is an event to decode
@@ -341,7 +359,8 @@ int main(void) {
         //   //scanning_start();
         // }
          curr_state = OFF;
-          kobukiDriveDirect(0,0);
+	      kobukiDriveDirect(0,0);
+	      //printf("IN OFF STATE");
         break;
       }
 
@@ -362,19 +381,27 @@ int main(void) {
 
       case TURNING: {
         //printf("TURNING");
+        //scanning_stop();
+
+        printf("SCANNING STOP RETURNED\n");
         angle_turned = (int) mpu9250_read_gyro_integration().z_axis;
 
         // if (is_button_pressed(&sensors)) {
         //   curr_state = OFF;
         //   mpu9250_stop_gyro_integration();
         // } 
-        if (angle_turned == adv_angle) {
+        if (angle_turned  == adv_angle) {
           // curr_state = BRAKE;
           // next_state = DRIVING;
           kobukiDriveDirect(0, 0);
           curr_state = OFF;
-          mpu9250_stop_gyro_integration();
+          printf("GOING TO OFF STATE\n");
+          //mpu9250_stop_gyro_integration();
+          //initial_angle = angle_turned;
+          printf("LEAVING\n");
           //scanning_start();
+
+
         } else {
           curr_state = TURNING;
           kobukiDriveDirect(50, -50);

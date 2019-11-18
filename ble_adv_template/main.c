@@ -160,7 +160,9 @@ int main(void) {
         if (is_button_pressed(&sensors)) {
           mpu9250_stop_gyro_integration();
           state = OFF;
-        } else if (traveled > 0.5) {
+        } else if (traveled > 1.0) {
+          simple_ble_adv_only_name();
+
           state = TURNING;
           start_distance_encoder = sensors.leftWheelEncoder;
           // nrf_delay_ms(500);
@@ -188,6 +190,8 @@ int main(void) {
           // simple_ble_adv_manuf_data((uint8_t*) &angle, sizeof(angle));
 
           kobukiDriveDirect(100, 100);
+          advertising_stop();
+
         }
         break; // each case needs to end with break!
       }
