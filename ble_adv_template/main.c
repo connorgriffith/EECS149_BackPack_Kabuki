@@ -70,7 +70,6 @@ static float measure_distance(uint16_t current_encoder, uint16_t previous_encode
 }
 
 
-uint16_t start_distance_encoder = 0;
 
 int main(void) {
   ret_code_t error_code = NRF_SUCCESS;
@@ -128,6 +127,7 @@ int main(void) {
   int initialAngle = 0;
 
   states state = OFF;
+  bool initStartDistanceEncoder = true;
 
   // loop forever, running state machine
   while (1) {
@@ -143,18 +143,52 @@ int main(void) {
         if (is_button_pressed(&sensors)) {
           state = DRIVING;
           //mpu9250_start_gyro_integration();
-           start_distance_encoder = sensors.leftWheelEncoder;
+          start_distance_encoder = sensors.leftWheelEncoder;
+          initStartDistanceEncoder = true;
 
         } else {
           state = OFF;
           // perform state-specific actions here
           kobukiDriveDirect(0, 0);
         }
+
         break; // each case needs to end with break!
       }
       case DRIVING: {
         print_state(state);
+
+
+       	// if (initStartDistanceEncoder)
+       	// {
+       	// 	start_distance_encoder = 0;
+       	// 	initStartDistanceEncoder = false;
+       	// }
+
+
         float traveled = measure_distance(sensors.leftWheelEncoder, start_distance_encoder);
+
+        //This check is to eliminate the -5.5 returned at times by measure_distance.  
+        //Somehow the wheelEncoder is reading 5.5 at times. But then after the 
+        //...measure_distance function is called the wheelEncoder gets zeroed
+        if (abs(traveled) > 1.2)
+        {
+        	start_distance_encoder = sensors.leftWheelEncoder;
+        	traveled = measure_distance(sensors.leftWheelEncoder, start_distance_encoder);
+        	// while (1) {
+	        // 	  char buf1[16];
+		       //    snprintf(buf1, 16, "%f", (float)sensors.leftWheelEncoder * CONVERSION);
+		       //    printf(buf1);
+		       //    display_write(buf1, DISPLAY_LINE_0);
+
+		       //    char buf[16];
+		       //    snprintf(buf, 16, "%f", (float)start_distance_encoder * CONVERSION);
+		       //    printf(buf);
+		       //    display_write(buf, DISPLAY_LINE_1);
+
+		       //    // printf("leftWheelEncoder: %d\n", sensors.leftWheelEncoder);
+		       //    // printf("start_distance_encoder:  %d\n", start_distance_encoder);
+        	// }
+        }
 
         // transition logic
         if (is_button_pressed(&sensors)) {
@@ -164,7 +198,7 @@ int main(void) {
           simple_ble_adv_only_name();
 
           state = TURNING;
-          start_distance_encoder = sensors.leftWheelEncoder;
+          //start_distance_encoder = sensors.leftWheelEncoder;
           // nrf_delay_ms(500);
           mpu9250_start_gyro_integration(); 
 
@@ -179,7 +213,7 @@ int main(void) {
           // }
           
           char buf1[16];
-          snprintf(buf1, 16, "%f m\n", traveled);
+          snprintf(buf1, 16, "%f", traveled);
           printf(buf1);
           display_write(buf1, DISPLAY_LINE_1);
 
@@ -199,6 +233,7 @@ int main(void) {
       case TURNING: {
         print_state(state);
         int angle = (int) mpu9250_read_gyro_integration().z_axis;
+        //printf("%s\n", );
         
         
         if (is_button_pressed(&sensors)) {
@@ -206,7 +241,7 @@ int main(void) {
             state = OFF;
         }
  
-        else if (abs(angle - initialAngle) >= 90) {
+        else if (abs(angle) >= 90) {
             kobukiDriveDirect(0, 0);
             // if (angle >= 350) 
             // {
@@ -217,19 +252,22 @@ int main(void) {
             //   initialAngle = angle;
             // }
 
+
             initialAngle = angle;
            
             // nrf_delay_ms(500);
-            // mpu9250_stop_gyro_integration();
-            start_distance_encoder = sensors.leftWheelEncoder;
+            simple_ble_adv_manuf_data((uint8_t*) &angle, 4);
+            mpu9250_stop_gyro_integration();
+            //start_distance_encoder = sensors.leftWheelEncoder; //JUST TOOK THIS OUT
            
             // nrf_delay_ms(500);
             state = DRIVING;
+            start_distance_encoder = sensors.leftWheelEncoder;
 
 
 //Question why did he cast to an unsigned pointer when its is signed data?
             // simple_ble_adv_manuf_data((uint8_t*) &angle, sizeof(angle));
-            simple_ble_adv_manuf_data((uint8_t*) &angle, 4);
+            //simple_ble_adv_manuf_data((uint8_t*) &angle, 4);
             //update_gyro = true;
 
         } else {

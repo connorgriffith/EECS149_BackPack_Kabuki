@@ -393,12 +393,13 @@ int main(void) {
         if (angle_turned  == adv_angle) {
           // curr_state = BRAKE;
           // next_state = DRIVING;
+          angle_turned = 0;
           kobukiDriveDirect(0, 0);
           curr_state = OFF;
-          printf("GOING TO OFF STATE\n");
-          //mpu9250_stop_gyro_integration();
+          //printf("GOING TO OFF STATE\n");
+          mpu9250_stop_gyro_integration();
           //initial_angle = angle_turned;
-          printf("LEAVING\n");
+          //printf("LEAVING\n");
           //scanning_start();
 
 
