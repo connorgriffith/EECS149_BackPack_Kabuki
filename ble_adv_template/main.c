@@ -6,6 +6,7 @@
 #include <stdbool.h>
 #include <stdint.h>
 #include <stdio.h>
+#include <time.h>
 
 #include "app_error.h"
 #include "app_timer.h"
@@ -129,6 +130,9 @@ int main(void) {
   states state = OFF;
   bool initStartDistanceEncoder = true;
 
+  clock_t firstClock;
+  bool reInitClock = false;
+
   // loop forever, running state machine
   while (1) {
     // read sensors from robot
@@ -142,7 +146,6 @@ int main(void) {
         // transition logic
         if (is_button_pressed(&sensors)) {
           state = DRIVING;
-          //mpu9250_start_gyro_integration();
           start_distance_encoder = sensors.leftWheelEncoder;
           initStartDistanceEncoder = true;
 
@@ -157,13 +160,12 @@ int main(void) {
       case DRIVING: {
         print_state(state);
 
-
-       	// if (initStartDistanceEncoder)
-       	// {
-       	// 	start_distance_encoder = 0;
-       	// 	initStartDistanceEncoder = false;
-       	// }
-
+        // if (reInitClock)
+        // {
+        // 	firstClock = clock();
+        // 	reInitClock = false;
+        // }
+         
 
         float traveled = measure_distance(sensors.leftWheelEncoder, start_distance_encoder);
 
@@ -174,27 +176,14 @@ int main(void) {
         {
         	start_distance_encoder = sensors.leftWheelEncoder;
         	traveled = measure_distance(sensors.leftWheelEncoder, start_distance_encoder);
-        	// while (1) {
-	        // 	  char buf1[16];
-		       //    snprintf(buf1, 16, "%f", (float)sensors.leftWheelEncoder * CONVERSION);
-		       //    printf(buf1);
-		       //    display_write(buf1, DISPLAY_LINE_0);
-
-		       //    char buf[16];
-		       //    snprintf(buf, 16, "%f", (float)start_distance_encoder * CONVERSION);
-		       //    printf(buf);
-		       //    display_write(buf, DISPLAY_LINE_1);
-
-		       //    // printf("leftWheelEncoder: %d\n", sensors.leftWheelEncoder);
-		       //    // printf("start_distance_encoder:  %d\n", start_distance_encoder);
-        	// }
+        
         }
 
         // transition logic
         if (is_button_pressed(&sensors)) {
           mpu9250_stop_gyro_integration();
           state = OFF;
-        } else if (traveled > 1.0) {
+        } else if (traveled > 0.6) {
           simple_ble_adv_only_name();
 
           state = TURNING;
@@ -204,27 +193,29 @@ int main(void) {
 
        } else {
           state = DRIVING;
-          // perform state-specific actions here
-          //uint16_t encoder = sensors.leftWheelEncoder;
-          //int angle = (int) mpu9250_read_gyro_integration().z_axis;
-
-          // if (angle > 360 || angle < 360) {
-          //   angle = 0;
-          // }
-          
+     
           char buf1[16];
           snprintf(buf1, 16, "%f", traveled);
           printf(buf1);
           display_write(buf1, DISPLAY_LINE_1);
 
-          // char buf[16];
-          // snprintf(buf, 16, "%d", angle);
-          // display_write(buf, DISPLAY_LINE_1);
-
-          // simple_ble_adv_manuf_data((uint8_t*) &angle, sizeof(angle));
+          
 
           kobukiDriveDirect(100, 100);
+
+          // float timePassed = ((float)(firstClock - clock()))/CLOCKS_PER_SEC;
+			
+
+
+          // if (timePassed >= 0.2)
+          // {
+          // 	printf("Time passed: %f\n", timePassed);
+          // 	advertising_stop();
+          // 	reInitClock = false;
+          // }
+
           advertising_stop();
+          
 
         }
         break; // each case needs to end with break!
@@ -243,15 +234,7 @@ int main(void) {
  
         else if (abs(angle) >= 90) {
             kobukiDriveDirect(0, 0);
-            // if (angle >= 350) 
-            // {
-            //   mpu9250_stop_gyro_integration();
-            //   initialAngle = 0;
-            // } else {
-
-            //   initialAngle = angle;
-            // }
-
+      
 
             initialAngle = angle;
            
@@ -264,11 +247,8 @@ int main(void) {
             state = DRIVING;
             start_distance_encoder = sensors.leftWheelEncoder;
 
+            reInitClock = true;
 
-//Question why did he cast to an unsigned pointer when its is signed data?
-            // simple_ble_adv_manuf_data((uint8_t*) &angle, sizeof(angle));
-            //simple_ble_adv_manuf_data((uint8_t*) &angle, 4);
-            //update_gyro = true;
 
         } else {
             //int angle1 = (int) mpu9250_read_gyro_integration().z_axis;

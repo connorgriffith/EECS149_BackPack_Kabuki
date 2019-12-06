@@ -241,6 +241,8 @@ void print_state(states current_state){
 void ble_evt_adv_report(ble_evt_t const* p_ble_evt) {
   uint8_t* address = p_ble_evt->evt.gap_evt.params.adv_report.peer_addr.addr;
   if (address[0] == 0x00 && address[1] == 0x00 && address[5] == 0xC0 && address[3] == 0xE5) {
+
+
     for (int i = 0; i < 6; i++) {
       if (LEADER_address[i] != address[i])
         return;
@@ -255,7 +257,9 @@ void ble_evt_adv_report(ble_evt_t const* p_ble_evt) {
       flag = data[i+1] == 0xFF;
       length = data[i];
       if (flag) {
-        dataPtr = &data[i+4];
+        // dataPtr = &data[i+4];
+        dataPtr = &data[i+3];  ///THIS WAS A +4 FOR IT TO WORK PROPERLY.......!!!!!!!!!!!!!!!!!!!!!!
+
         break;
       }
       i += (length + 1);
@@ -286,6 +290,7 @@ void ble_evt_adv_report(ble_evt_t const* p_ble_evt) {
     }
   }
 }
+
 
 int main(void) {
 
