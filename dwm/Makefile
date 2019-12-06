@@ -13,7 +13,7 @@ APP_SOURCE_PATHS += .
 APP_HEADER_PATHS += $(HOST_DIR)/platform/rpi/hal\
 					$(HOST_DIR)/include\
 					$(HOST_DIR)/dwm_driver/lmh\
-          ../../nrf52x-base/sdk/nrf5_sdk_15.3.0/modules/nrfx/drivers/include\
+
 
 APP_SOURCE_PATHS += $(HOST_DIR)/platform/rpi/hal\
 					$(HOST_DIR)/dwm_driver/dwm_api\
@@ -22,6 +22,7 @@ APP_SOURCE_PATHS += $(HOST_DIR)/platform/rpi/hal\
 APP_SOURCES = $(notdir $(wildcard ./*.c))
 APP_SOURCES += $(notdir $(wildcard $(HOST_DIR)/dwm_driver/dwm_api/*.c))\
          hal.c\
+         hal_fprint.c\
          hal_spi.c\
 			   lmh.c\
 			   lmh_spirx.c\
