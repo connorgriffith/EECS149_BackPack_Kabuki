@@ -30,9 +30,11 @@ _build/main.o: main.c /usr/arm-none-eabi/include/math.h \
  /usr/arm-none-eabi/include/sys/_pthreadtypes.h \
  /usr/arm-none-eabi/include/sys/sched.h \
  /usr/arm-none-eabi/include/machine/types.h \
- /usr/arm-none-eabi/include/sys/stdio.h /usr/arm-none-eabi/include/time.h \
+ /usr/arm-none-eabi/include/sys/stdio.h \
+ /usr/arm-none-eabi/include/sys/time.h /usr/arm-none-eabi/include/time.h \
  /usr/arm-none-eabi/include/machine/time.h \
  /usr/arm-none-eabi/include/xlocale.h \
+ /usr/arm-none-eabi/include/machine/_time.h \
  ../../nrf52x-base//sdk/nrf5_sdk_15.3.0/components/libraries/util/app_error.h \
  ../../nrf52x-base//sdk/nrf5_sdk_15.3.0/modules/nrfx/mdk/nrf.h \
  ../../nrf52x-base//sdk/nrf5_sdk_15.3.0/modules/nrfx/mdk/nrf52.h \

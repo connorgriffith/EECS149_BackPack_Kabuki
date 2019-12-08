@@ -6,7 +6,7 @@
 #include <stdbool.h>
 #include <stdint.h>
 #include <stdio.h>
-#include <time.h>
+#include <sys/time.h>
 
 #include "app_error.h"
 #include "app_timer.h"
@@ -29,6 +29,9 @@
 #include "simple_ble.h"
 
 #include "states.h"
+
+// Create a timer
+APP_TIMER_DEF(adv_timer);
 
 // I2C manager
 NRF_TWI_MNGR_DEF(twi_mngr_instance, 5, 0);
@@ -70,6 +73,10 @@ static float measure_distance(uint16_t current_encoder, uint16_t previous_encode
     return difference * CONVERSION;
 }
 
+static void timer_callback (void * p_context) {
+  printf("Called advertising_stop!!!!!!!!!!!!\n");
+  advertising_stop();
+}
 
 
 int main(void) {
@@ -131,7 +138,21 @@ int main(void) {
   bool initStartDistanceEncoder = true;
 
   clock_t firstClock;
+  clock_t endTime;
   bool reInitClock = false;
+  uint8_t noAngle = 0;
+  uint8_t* noAnglePtr = &noAngle;
+  bool beforeFirstTurn = true;
+  float timePassed;
+  bool firedOnceForTurn = false;
+
+  // Set a timer to read the light sensor and update advertisement data every second.
+  app_timer_init();
+  error_code = app_timer_create(&adv_timer, APP_TIMER_MODE_SINGLE_SHOT, (app_timer_timeout_handler_t) timer_callback);
+  APP_ERROR_CHECK(error_code);
+
+  //app_timer_start(adv_timer, APP_TIMER_TICKS(1000), NULL); // 1000 milliseconds
+
 
   // loop forever, running state machine
   while (1) {
@@ -162,6 +183,7 @@ int main(void) {
 
         // if (reInitClock)
         // {
+        //   printf("Only happen right after turn\n");
         // 	firstClock = clock();
         // 	reInitClock = false;
         // }
@@ -183,7 +205,7 @@ int main(void) {
         if (is_button_pressed(&sensors)) {
           mpu9250_stop_gyro_integration();
           state = OFF;
-        } else if (traveled > 0.6) {
+        } else if (traveled > 0.8) {
           simple_ble_adv_only_name();
 
           state = TURNING;
@@ -196,25 +218,49 @@ int main(void) {
      
           char buf1[16];
           snprintf(buf1, 16, "%f", traveled);
-          printf(buf1);
+          //printf(buf1);
           display_write(buf1, DISPLAY_LINE_1);
 
           
 
           kobukiDriveDirect(100, 100);
+      //     endTime = clock() - firstClock;
 
-          // float timePassed = ((float)(firstClock - clock()))/CLOCKS_PER_SEC;
-			
+      //     //timePassed = (float)endTime/CLOCKS_PER_SEC;
+      //     //float timePassed = ((float)(firstClock - clock()));
+      //     printf("endTime%f\n", (float) endTime);
+      //     printf("\n");
+      //     printf("\n");
+      //     printf("%f\n", (float)clock());
+      //     printf("\n");
+      //     printf("\n");
+			   // printf("Time passed: %f\n", (float)endTime/CLOCKS_PER_SEC);
 
+      //    //Sending an agle of 0 so that the actual angle gets through padded with angle = 0
+         
 
-          // if (timePassed >= 0.2)
-          // {
-          // 	printf("Time passed: %f\n", timePassed);
-          // 	advertising_stop();
-          // 	reInitClock = false;
+      //     if ((float)endTime/CLOCKS_PER_SEC >= 0.3 && !beforeFirstTurn)
+      //     {
+      //       printf("Advertising stopped!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!\n");	
+      //     	advertising_stop();
+      //     	reInitClock = false;
+      //     } 
+          //  else if (!beforeFirstTurn){
+          //   printf("No Angle pointer Advertised!!!!!\n");  
+          //   simple_ble_adv_manuf_data((uint8_t*) noAnglePtr, 4);
           // }
 
-          advertising_stop();
+
+          if (!beforeFirstTurn && !firedOnceForTurn) 
+          {
+            printf("Should called advertising_stop\n");
+            app_timer_create(&adv_timer, APP_TIMER_MODE_SINGLE_SHOT, (app_timer_timeout_handler_t) timer_callback);
+            app_timer_start(adv_timer, APP_TIMER_TICKS(200), NULL); // 3000 milliseconds
+            firedOnceForTurn = true;
+
+          }
+
+        //advertising_stop();
           
 
         }
@@ -222,6 +268,10 @@ int main(void) {
       }
 
       case TURNING: {
+        beforeFirstTurn = false;
+        firedOnceForTurn = false;
+
+
         print_state(state);
         int angle = (int) mpu9250_read_gyro_integration().z_axis;
         //printf("%s\n", );

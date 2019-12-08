@@ -220,6 +220,7 @@ int turn_right = -1;  // -1 for turn right; 1 for turn left
 int adv_angle = 0;
 int angle_turned = 0;
 int initial_angle = 0;
+bool readyForNewAdv = true;
 
 void print_state(states current_state){
   switch(current_state){
@@ -240,7 +241,7 @@ void print_state(states current_state){
 // TODO: implement BLE advertisement callback
 void ble_evt_adv_report(ble_evt_t const* p_ble_evt) {
   uint8_t* address = p_ble_evt->evt.gap_evt.params.adv_report.peer_addr.addr;
-  if (address[0] == 0x00 && address[1] == 0x00 && address[5] == 0xC0 && address[3] == 0xE5) {
+  if (address[0] == 0x00 && address[1] == 0x00 && address[5] == 0xC0 && address[3] == 0xE5 && readyForNewAdv) {
 
 
     for (int i = 0; i < 6; i++) {
@@ -258,7 +259,7 @@ void ble_evt_adv_report(ble_evt_t const* p_ble_evt) {
       length = data[i];
       if (flag) {
         // dataPtr = &data[i+4];
-        dataPtr = &data[i+3];  ///THIS WAS A +4 FOR IT TO WORK PROPERLY.......!!!!!!!!!!!!!!!!!!!!!!
+        dataPtr = &data[i+4];  ///THIS WAS A +4 FOR IT TO WORK PROPERLY.......!!!!!!!!!!!!!!!!!!!!!!
 
         break;
       }
@@ -278,6 +279,8 @@ void ble_evt_adv_report(ble_evt_t const* p_ble_evt) {
         kobukiDriveDirect(0, 0);
         curr_state = TURNING;
         mpu9250_start_gyro_integration();
+      } else {
+      	printf("This should never fire\n");
       }
       // char buf[16];
       // snprintf(buf, 16, "%d", *dataPtr);
@@ -286,7 +289,7 @@ void ble_evt_adv_report(ble_evt_t const* p_ble_evt) {
       //stopScan();
       
 
-      printf("Should only fire when get advertisement\n");
+      
     }
   }
 }
