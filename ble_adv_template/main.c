@@ -140,8 +140,7 @@ int main(void) {
   clock_t firstClock;
   clock_t endTime;
   bool reInitClock = false;
-  uint8_t noAngle = 0;
-  uint8_t* noAnglePtr = &noAngle;
+  int makeFollowerStopVal = 250;
   bool beforeFirstTurn = true;
   float timePassed;
   bool firedOnceForTurn = false;
@@ -151,7 +150,6 @@ int main(void) {
   error_code = app_timer_create(&adv_timer, APP_TIMER_MODE_SINGLE_SHOT, (app_timer_timeout_handler_t) timer_callback);
   APP_ERROR_CHECK(error_code);
 
-  //app_timer_start(adv_timer, APP_TIMER_TICKS(1000), NULL); // 1000 milliseconds
 
 
   // loop forever, running state machine
@@ -205,12 +203,14 @@ int main(void) {
         if (is_button_pressed(&sensors)) {
           mpu9250_stop_gyro_integration();
           state = OFF;
-        } else if (traveled > 0.8) {
+        } else if (traveled > 1.2) {
           simple_ble_adv_only_name();
 
           state = TURNING;
           //start_distance_encoder = sensors.leftWheelEncoder;
           // nrf_delay_ms(500);
+          simple_ble_adv_manuf_data((uint8_t*) &makeFollowerStopVal, 4);
+
           mpu9250_start_gyro_integration(); 
 
        } else {
@@ -260,7 +260,6 @@ int main(void) {
 
           }
 
-        //advertising_stop();
           
 
         }
@@ -274,7 +273,6 @@ int main(void) {
 
         print_state(state);
         int angle = (int) mpu9250_read_gyro_integration().z_axis;
-        //printf("%s\n", );
         
         
         if (is_button_pressed(&sensors)) {
@@ -288,12 +286,9 @@ int main(void) {
 
             initialAngle = angle;
            
-            // nrf_delay_ms(500);
             simple_ble_adv_manuf_data((uint8_t*) &angle, 4);
             mpu9250_stop_gyro_integration();
-            //start_distance_encoder = sensors.leftWheelEncoder; //JUST TOOK THIS OUT
            
-            // nrf_delay_ms(500);
             state = DRIVING;
             start_distance_encoder = sensors.leftWheelEncoder;
 
@@ -301,17 +296,13 @@ int main(void) {
 
 
         } else {
-            //int angle1 = (int) mpu9250_read_gyro_integration().z_axis;
 
             kobukiDriveDirect(50, -50);
             display_write("TURNING", DISPLAY_LINE_0);
             state = TURNING;
-            //int turned = abs(angle);
             char buf[16];
             snprintf(buf, 16, "%d", angle);
-            //printf(amount);
             display_write(buf, DISPLAY_LINE_1);
-            // simple_ble_adv_manuf_data((uint8_t*) &angle, sizeof(angle));
         }
  
         break;
