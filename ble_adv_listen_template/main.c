@@ -28,6 +28,8 @@
 #include "kobukiUtilities.h"
 #include "mpu9250.h"
 
+// Create a timer
+APP_TIMER_DEF(adv_timer);
 
 // I2C manager
 NRF_TWI_MNGR_DEF(twi_mngr_instance, 5, 0);
@@ -61,6 +63,8 @@ bool readyForNewAdv = true;
 bool comingFromWaiting = false;
 uint16_t start_distance_encoder = 0;
 bool reinitStartEncorderVal = false;
+int stopLeaderVal = 250;
+int startLeaderAgain = 240;
 
 void print_state(states current_state){
   switch(current_state){
@@ -76,6 +80,11 @@ void print_state(states current_state){
     default:
       break;
   }
+}
+
+static void timer_callback (void * p_context) {
+  printf("Called advertising_stop!!!!!!!!!!!!\n");
+  advertising_stop();
 }
 
 // TODO: implement BLE advertisement callback
@@ -170,8 +179,14 @@ int main(void) {
   // Setup BLE
   simple_ble_app = simple_ble_init(&ble_config);
 
+  simple_ble_adv_only_name();
+
+
+  
+
+//______________Take out if no work____________
   // Start Advertising
-  advertising_stop();
+  
 
   // initialize LEDs
   nrf_gpio_pin_dir_set(23, NRF_GPIO_PIN_DIR_OUTPUT);
@@ -211,6 +226,7 @@ int main(void) {
   printf("Kobuki initialized!\n");
 
 
+
   // Setup BLE
   // Note: simple BLE is our own library. You can find it in `nrf5x-base/lib/simple_ble/`
   // simple_ble_app = simple_ble_init(&ble_config);
@@ -221,7 +237,13 @@ int main(void) {
 
   int delay_count = 0;
   bool inRange = true;
+
+  app_timer_init();
+  error_code = app_timer_create(&adv_timer, APP_TIMER_MODE_SINGLE_SHOT, (app_timer_timeout_handler_t) timer_callback);
+  APP_ERROR_CHECK(error_code);
   
+
+advertising_stop();
 
   // TODO: Start scanning
   //BLE Event above will now be called whenever there is an event to decode
@@ -295,7 +317,7 @@ int main(void) {
         //This check is to eliminate the -5.5 returned at times by measure_distance.  
         //Somehow the wheelEncoder is reading 5.5 at times. But then after the 
         //...measure_distance function is called the wheelEncoder gets zeroed
-        if (abs(traveled) > 2.5)
+        if (abs(traveled) > 4.5)
         {
         	start_distance_encoder = sensors.leftWheelEncoder;
         	traveled = measure_distance(sensors.leftWheelEncoder, start_distance_encoder);
@@ -308,11 +330,15 @@ int main(void) {
           curr_state = OFF;
         } 
       
-       else if (traveled >= 0.3 && comingFromWaiting) {
+       else if (traveled >= 0.4 && comingFromWaiting) {
        	printf("Should only happen after traveled 0.3m\n\n");
        	  curr_state = TURNING;
        	  mpu9250_start_gyro_integration();
        	  comingFromWaiting = false;
+
+       	  simple_ble_adv_manuf_data((uint8_t*) &stopLeaderVal, 4);
+       	  app_timer_create(&adv_timer, APP_TIMER_MODE_SINGLE_SHOT, (app_timer_timeout_handler_t) timer_callback);
+           app_timer_start(adv_timer, APP_TIMER_TICKS(1000), NULL); 
 
        }
 
@@ -339,11 +365,16 @@ int main(void) {
         angle_turned = (int) mpu9250_read_gyro_integration().z_axis;
 
       
-        if (angle_turned  == adv_angle) {
+        if (angle_turned  <= adv_angle) {
           angle_turned = 0;
           kobukiDriveDirect(100, 100);
           curr_state = DRIVING;
           mpu9250_stop_gyro_integration();
+          start_distance_encoder = sensors.leftWheelEncoder;
+
+          simple_ble_adv_manuf_data((uint8_t*) &startLeaderAgain, 4);
+          app_timer_create(&adv_timer, APP_TIMER_MODE_SINGLE_SHOT, (app_timer_timeout_handler_t) timer_callback);
+           app_timer_start(adv_timer, APP_TIMER_TICKS(1000), NULL); 
          
 
         } else {
@@ -354,6 +385,7 @@ int main(void) {
           snprintf(buf, 16, "%d", angle_turned);
           display_write(buf, DISPLAY_LINE_1);
         }
+
         break;
       }
     }

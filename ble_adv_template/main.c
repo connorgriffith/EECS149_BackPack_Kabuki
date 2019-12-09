@@ -67,6 +67,9 @@ void print_state(states current_state){
 }
 
 const float CONVERSION = 0.00008529;
+int adv;
+const uint8_t FOLLOWER_address[6] = {0x05, 0x00, 0x49, 0xE5, 0x98, 0xC0};
+states state = OFF;
    
 static float measure_distance(uint16_t current_encoder, uint16_t previous_encoder) {
     float difference = current_encoder - previous_encoder;
@@ -78,6 +81,73 @@ static void timer_callback (void * p_context) {
   advertising_stop();
 }
 
+
+void ble_evt_adv_report(ble_evt_t const* p_ble_evt) {
+  uint8_t* address = p_ble_evt->evt.gap_evt.params.adv_report.peer_addr.addr;
+  if (address[0] == 0x05 && address[1] == 0x00 && address[5] == 0xC0 && address[3] == 0xE5) {
+
+
+    for (int i = 0; i < 6; i++) {
+      if (FOLLOWER_address[i] != address[i])
+        return;
+    }
+
+    uint8_t* data = p_ble_evt->evt.gap_evt.params.adv_report.data.p_data;
+    uint32_t length;
+    int16_t* dataPtr;
+    bool flag = false;
+
+    for (int i = 0; i < 31;) {
+      flag = data[i+1] == 0xFF;
+      length = data[i];
+      if (flag) {
+        // dataPtr = &data[i+4];
+        dataPtr = &data[i+4];  ///THIS WAS A +4 FOR IT TO WORK PROPERLY.......!!!!!!!!!!!!!!!!!!!!!!
+
+        break;
+      }
+      i += (length + 1);
+    }
+
+    if (!flag) {
+      return;
+    } else {
+      //printf("Length: %d\n", length);
+      //printf("First int: %d\n", *dataPtr);
+      adv = *dataPtr;
+       if (adv == 250)
+       {
+         //This is when the kobuki needs to stop and wait for the leader to finish its turn
+         state = OFF;
+         printf("Got the adv to stay still\n adv: %d\n", adv);
+       }
+
+       else if (adv == 240) {
+        // curr_state = BRAKE;
+        // next_state = TURNING;
+        //kobukiDriveDirect(0, 0);
+        printf("Will start Driving\n adv: %d\n", adv);
+
+        kobukiDriveDirect(100, 100);
+
+        state = DRIVING;
+        //curr_state = TURNING;
+        
+        // mpu9250_start_gyro_integration();
+      } else {
+        printf("This should never fire\n");
+      }
+      // char buf[16];
+      // snprintf(buf, 16, "%d", *dataPtr);
+      // display_write(buf, DISPLAY_LINE_1);
+
+      //stopScan();
+      
+
+      
+    }
+  }
+}
 
 int main(void) {
   ret_code_t error_code = NRF_SUCCESS;
@@ -134,7 +204,7 @@ int main(void) {
   uint16_t start_distance_encoder = 0;
   int initialAngle = 0;
 
-  states state = OFF;
+  
   bool initStartDistanceEncoder = true;
 
   clock_t firstClock;
@@ -150,6 +220,7 @@ int main(void) {
   error_code = app_timer_create(&adv_timer, APP_TIMER_MODE_SINGLE_SHOT, (app_timer_timeout_handler_t) timer_callback);
   APP_ERROR_CHECK(error_code);
 
+  scanning_start();
 
 
   // loop forever, running state machine
@@ -192,7 +263,7 @@ int main(void) {
         //This check is to eliminate the -5.5 returned at times by measure_distance.  
         //Somehow the wheelEncoder is reading 5.5 at times. But then after the 
         //...measure_distance function is called the wheelEncoder gets zeroed
-        if (abs(traveled) > 1.2)
+        if (abs(traveled) > 4.5)
         {
         	start_distance_encoder = sensors.leftWheelEncoder;
         	traveled = measure_distance(sensors.leftWheelEncoder, start_distance_encoder);
@@ -210,6 +281,8 @@ int main(void) {
           //start_distance_encoder = sensors.leftWheelEncoder;
           // nrf_delay_ms(500);
           simple_ble_adv_manuf_data((uint8_t*) &makeFollowerStopVal, 4);
+          app_timer_create(&adv_timer, APP_TIMER_MODE_SINGLE_SHOT, (app_timer_timeout_handler_t) timer_callback);
+            app_timer_start(adv_timer, APP_TIMER_TICKS(700), NULL); 
 
           mpu9250_start_gyro_integration(); 
 
@@ -255,7 +328,7 @@ int main(void) {
           {
             printf("Should called advertising_stop\n");
             app_timer_create(&adv_timer, APP_TIMER_MODE_SINGLE_SHOT, (app_timer_timeout_handler_t) timer_callback);
-            app_timer_start(adv_timer, APP_TIMER_TICKS(200), NULL); // 3000 milliseconds
+            app_timer_start(adv_timer, APP_TIMER_TICKS(600), NULL); // 3000 milliseconds  *****This used to be 200 for it to work  when leader weas only communicating to follower
             firedOnceForTurn = true;
 
           }
