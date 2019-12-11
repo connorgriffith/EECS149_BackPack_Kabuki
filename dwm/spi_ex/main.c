@@ -57,12 +57,12 @@ static const nrf_drv_spi_t spi = NRF_DRV_SPI_INSTANCE(SPI_INSTANCE);  /**< SPI i
 static volatile bool spi_xfer_done;  /**< Flag used to indicate that SPI instance completed the transfer. */
 
 #define TEST_STRING "Nordic"
-//static uint8_t       m_tx_buf[] = TLV_TEST;           /**< TX buffer. */
-static uint8_t       m_tx_buf[4];
-//static uint8_t       m_rx_buf[sizeof(TLV_TEST) + 1];    /**< RX buffer. */
-static uint8_t       m_rx_buf[4];
-//static const uint8_t m_length = sizeof(m_tx_buf);        /**< Transfer length. */
-static const uint8_t m_length = 4;
+static uint8_t       m_tx_buf[] = TLV_TEST;           /**< TX buffer. */
+//static uint8_t       m_tx_buf[4];
+static uint8_t       m_rx_buf[sizeof(TLV_TEST) + 1];    /**< RX buffer. */
+//static uint8_t       m_rx_buf[4];
+static const uint8_t m_length = sizeof(m_tx_buf);        /**< Transfer length. */
+//static const uint8_t m_length = 4;
 
 /**
  * @brief SPI user event handler.

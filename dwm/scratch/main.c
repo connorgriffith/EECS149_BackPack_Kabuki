@@ -56,10 +56,10 @@ void shift_bytes(uint8_t* buffer, uint8_t length) {
 */
 uint8_t spi_transfer(uint8_t* tx_buffer, uint8_t* rx_buffer, uint8_t tx_length) {
   nrf_drv_spi_transfer(&spi_instance, tx_buffer, 2, rx_buffer, 2); 
-  while (rx_buffer[0] == 0xff || rx_buffer[1] == 0xff) {
+  while (rx_buffer[0] == 0x00) { // || rx_buffer[1] == 0x00 ) {//|| rx_buffer[0] == 0xff || rx_buffer[1] == 0xff) {
     nrf_delay_ms(10);
     printf("Polling 2 bytes...\n");
-    nrf_drv_spi_transfer(&spi_instance, tx_buffer, tx_length, rx_buffer, 2);
+    nrf_drv_spi_transfer(&spi_instance, tx_buffer, 2, rx_buffer, 2);
   }
   
   uint8_t rx_buffer_length = rx_buffer[1];
@@ -67,7 +67,7 @@ uint8_t spi_transfer(uint8_t* tx_buffer, uint8_t* rx_buffer, uint8_t tx_length) 
   printf("Type:\t%x\n", rx_buffer[0]);
   printf("Length:\t%d\n\n", rx_buffer_length);
  
-  nrf_drv_spi_transfer(&spi_instance, tx_buffer, tx_length, rx_buffer + 2, rx_buffer_length);
+  nrf_drv_spi_transfer(&spi_instance, NULL, 0, rx_buffer + 2, rx_buffer_length);
 
   for(int i = 0; i < tx_length; i++) {
     printf("TX_buffer[%d]:\t%x\n", i, tx_buffer[i]);
@@ -112,6 +112,15 @@ int main(void) {
     return false;
   }
 */
+  uint8_t reset_request[2];
+  reset_request[0] = 0x14;
+  reset_request[1] = 0;
+  shift_bytes(reset_request, 2);  
+
+  uint8_t reset_response[3];
+  reset_response[0] = 0x00;
+  spi_transfer(reset_request, reset_response, 2);
+ 
   uint8_t cfg_tx_buffer[4];
   cfg_tx_buffer[0] = TLV_TYPE_CFG_TN_SET;
   cfg_tx_buffer[1] = 2;
@@ -120,17 +129,8 @@ int main(void) {
   shift_bytes(cfg_tx_buffer, 4);
 
   uint8_t cfg_rx_buffer[TLV_MAX_SIZE];
-  //cfg_rx_buffer[0] = 0xff;
+  cfg_rx_buffer[0] = 0x00;
   spi_transfer(cfg_rx_buffer, cfg_rx_buffer, 4);
 
-/*
-  uint8_t reset_request[2];
-  reset_request[0] = 0x14;
-  reset_request[1] = 0;
-  shift_bytes(reset_request, 2);  
 
-  uint8_t reset_response[3];
-  //reset_response[0] = 0xff;
-  spi_transfer(reset_request, reset_response, 2);
-*/
 }

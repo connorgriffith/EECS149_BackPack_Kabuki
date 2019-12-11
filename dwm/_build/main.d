@@ -92,4 +92,7 @@ _build/main.o: main.c \
  ../../nrf52x-base//sdk/nrf5_sdk_15.3.0/components/boards/boards.h \
  /home/student/buckler/software/boards/buckler_revB/./buckler.h \
  ../../nrf52x-base//sdk/nrf5_sdk_15.3.0/modules/nrfx/hal/nrf_saadc.h \
- ../../nrf52x-base//sdk/nrf5_sdk_15.3.0/components/libraries/util/app_error.h
+ ../../nrf52x-base//sdk/nrf5_sdk_15.3.0/components/libraries/util/app_error.h \
+ /usr/arm-none-eabi/include/stdlib.h \
+ /usr/arm-none-eabi/include/machine/stdlib.h \
+ /usr/arm-none-eabi/include/alloca.h
