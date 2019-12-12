@@ -15,15 +15,16 @@
 #define SPI_SPEED                8000000
 #define SPI_DELAY                0
 
-/*
-#define SPI_SCLK    NRF_GPIO_PIN_MAP(0,13)
-#define SPI_MISO    NRF_GPIO_PIN_MAP(0,12)
-#define SPI_MOSI    NRF_GPIO_PIN_MAP(0,11)
-*/
+#define SPI_CS      NRF_GPIO_PIN_MAP(0,18)
+#define SPI_SCLK    NRF_GPIO_PIN_MAP(0,17)
+#define SPI_MISO    NRF_GPIO_PIN_MAP(0,16)
+#define SPI_MOSI    NRF_GPIO_PIN_MAP(0,15)
 
+/*
 #define SPI_SCLK BUCKLER_LCD_SCLK
 #define SPI_MISO BUCKLER_LCD_MISO
 #define SPI_MOSI BUCKLER_LCD_MOSI
+*/
 
 #define TLV_MAX_SIZE 255
 #define TLV_TYPE_CFG_TN_SET 5
@@ -35,7 +36,7 @@ int init(void) {
   spi_config.sck_pin    = SPI_SCLK;
   spi_config.miso_pin   = SPI_MISO;
   spi_config.mosi_pin   = SPI_MOSI;
-  // spi_config.ss_pin     = RTC_CS;
+  spi_config.ss_pin     = SPI_CS;
   spi_config.frequency  = SPI_SPEED;
   spi_config.mode       = NRF_DRV_SPI_MODE_0;
   spi_config.bit_order  = NRF_DRV_SPI_BIT_ORDER_MSB_FIRST; 
@@ -55,11 +56,12 @@ void shift_bytes(uint8_t* buffer, uint8_t length) {
    call transfer(..,..,.., rx_buffer, received_bytes[1])  
 */
 uint8_t spi_transfer(uint8_t* tx_buffer, uint8_t* rx_buffer, uint8_t tx_length) {
-  nrf_drv_spi_transfer(&spi_instance, tx_buffer, 2, rx_buffer, 2); 
-  while (rx_buffer[0] == 0xff || rx_buffer[1] == 0xff) {
-    nrf_delay_ms(10);
+  nrf_delay_ms(1000);
+  nrf_drv_spi_transfer(&spi_instance, tx_buffer, tx_length, NULL, 0); 
+  while (rx_buffer[0] == 0x00) { // || rx_buffer[1] == 0x00 ) {//|| rx_buffer[0] == 0xff || rx_buffer[1] == 0xff) {
+    nrf_delay_ms(1);
     printf("Polling 2 bytes...\n");
-    nrf_drv_spi_transfer(&spi_instance, tx_buffer, tx_length, rx_buffer, 2);
+    nrf_drv_spi_transfer(&spi_instance, NULL, 0, rx_buffer, 2);
   }
   
   uint8_t rx_buffer_length = rx_buffer[1];
@@ -67,7 +69,7 @@ uint8_t spi_transfer(uint8_t* tx_buffer, uint8_t* rx_buffer, uint8_t tx_length) 
   printf("Type:\t%x\n", rx_buffer[0]);
   printf("Length:\t%d\n\n", rx_buffer_length);
  
-  nrf_drv_spi_transfer(&spi_instance, tx_buffer, tx_length, rx_buffer + 2, rx_buffer_length);
+  nrf_drv_spi_transfer(&spi_instance, NULL, 0, rx_buffer + 2, rx_buffer_length);
 
   for(int i = 0; i < tx_length; i++) {
     printf("TX_buffer[%d]:\t%x\n", i, tx_buffer[i]);
@@ -84,18 +86,20 @@ uint8_t spi_transfer(uint8_t* tx_buffer, uint8_t* rx_buffer, uint8_t tx_length) 
 
 int main(void) { 
   init();  
-/*
+
   uint8_t data[2];
   data[0] = 0x14;
   data[1] = 0x00;
   shift_bytes(data, 2);
   ret_code_t err_code = nrf_drv_spi_transfer(&spi_instance, data, 2, NULL, 0);
+  printf("First transfer passed\n");
   APP_ERROR_CHECK(err_code);
   if (err_code != NRF_SUCCESS) {
     return false;  
   }
   uint8_t size_num[2];
   err_code = nrf_drv_spi_transfer(&spi_instance, NULL, 0, size_num, 2);
+  printf("Second transfer passed.\n");
   while (size_num[0] == 0x00) {
     APP_ERROR_CHECK(err_code);
     if (err_code != NRF_SUCCESS) {
@@ -111,26 +115,39 @@ int main(void) {
   if (err_code != NRF_SUCCESS) {
     return false;
   }
-*/
+
+/*
   uint8_t cfg_tx_buffer[4];
   cfg_tx_buffer[0] = TLV_TYPE_CFG_TN_SET;
   cfg_tx_buffer[1] = 2;
   cfg_tx_buffer[2] = 0x62;
   cfg_tx_buffer[3] = 0; 
+  //shift_bytes(cfg_tx_buffer, 4);
+
+  uint8_t cfg_rx_buffer[TLV_MAX_SIZE];
+  //cfg_rx_buffer[0] = 0x00;
+  spi_transfer(cfg_tx_buffer, cfg_rx_buffer, 4);
+
+
+  uint8_t reset_request[2];
+  reset_request[0] = 0x13;
+  reset_request[1] = 0;
+  //shift_bytes(reset_request, 2);  
+
+  uint8_t reset_response[3];
+  //reset_response[0] = 0x00;
+  spi_transfer(reset_request, reset_response, 2);
+ 
+  uint8_t cfg_tx_buffer[4];
+  cfg_tx_buffer[0] = TLV_TYPE_CFG_TN_SET;
+  cfg_tx_buffer[1] = 2;
+  cfg_tx_buffer[2] = 0x62;
+  cfg_tx_buffer[2] = 0x62;
+  cfg_tx_buffer[3] = 0; 
   shift_bytes(cfg_tx_buffer, 4);
 
   uint8_t cfg_rx_buffer[TLV_MAX_SIZE];
-  //cfg_rx_buffer[0] = 0xff;
+  cfg_rx_buffer[0] = 0x00;
   spi_transfer(cfg_rx_buffer, cfg_rx_buffer, 4);
-
-/*
-  uint8_t reset_request[2];
-  reset_request[0] = 0x14;
-  reset_request[1] = 0;
-  shift_bytes(reset_request, 2);  
-
-  uint8_t reset_response[3];
-  //reset_response[0] = 0xff;
-  spi_transfer(reset_request, reset_response, 2);
 */
 }

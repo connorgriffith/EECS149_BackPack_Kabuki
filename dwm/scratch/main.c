@@ -37,7 +37,7 @@ int init(void) {
   spi_config.mosi_pin   = SPI_MOSI;
   // spi_config.ss_pin     = RTC_CS;
   spi_config.frequency  = SPI_SPEED;
-  spi_config.mode       = NRF_DRV_SPI_MODE_0;
+  spi_config.mode       = NRF_DRV_SPI_MODE_2;
   spi_config.bit_order  = NRF_DRV_SPI_BIT_ORDER_MSB_FIRST; 
   return nrf_drv_spi_init(&spi_instance, &spi_config, NULL, NULL);
 }
@@ -55,11 +55,12 @@ void shift_bytes(uint8_t* buffer, uint8_t length) {
    call transfer(..,..,.., rx_buffer, received_bytes[1])  
 */
 uint8_t spi_transfer(uint8_t* tx_buffer, uint8_t* rx_buffer, uint8_t tx_length) {
-  nrf_drv_spi_transfer(&spi_instance, tx_buffer, 2, rx_buffer, 2); 
+  nrf_delay_ms(1000);
+  nrf_drv_spi_transfer(&spi_instance, tx_buffer, tx_length, rx_buffer, 2); 
   while (rx_buffer[0] == 0x00) { // || rx_buffer[1] == 0x00 ) {//|| rx_buffer[0] == 0xff || rx_buffer[1] == 0xff) {
     nrf_delay_ms(10);
     printf("Polling 2 bytes...\n");
-    nrf_drv_spi_transfer(&spi_instance, tx_buffer, 2, rx_buffer, 2);
+    nrf_drv_spi_transfer(&spi_instance, tx_buffer, tx_length, rx_buffer, 2);
   }
   
   uint8_t rx_buffer_length = rx_buffer[1];
@@ -115,15 +116,16 @@ int main(void) {
   uint8_t reset_request[2];
   reset_request[0] = 0x14;
   reset_request[1] = 0;
-  shift_bytes(reset_request, 2);  
+  //shift_bytes(reset_request, 2);  
 
   uint8_t reset_response[3];
-  reset_response[0] = 0x00;
+  //reset_response[0] = 0x00;
   spi_transfer(reset_request, reset_response, 2);
- 
+ /*
   uint8_t cfg_tx_buffer[4];
   cfg_tx_buffer[0] = TLV_TYPE_CFG_TN_SET;
   cfg_tx_buffer[1] = 2;
+  cfg_tx_buffer[2] = 0x62;
   cfg_tx_buffer[2] = 0x62;
   cfg_tx_buffer[3] = 0; 
   shift_bytes(cfg_tx_buffer, 4);
@@ -131,6 +133,5 @@ int main(void) {
   uint8_t cfg_rx_buffer[TLV_MAX_SIZE];
   cfg_rx_buffer[0] = 0x00;
   spi_transfer(cfg_rx_buffer, cfg_rx_buffer, 4);
-
-
+*/
 }
