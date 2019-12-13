@@ -1,5 +1,4 @@
 _build/main.o: main.c \
- ../../nrf52x-base//sdk/nrf5_sdk_15.3.0/integration/nrfx/legacy/nrf_drv_spi.h \
  ../../nrf52x-base//sdk/nrf5_sdk_15.3.0/modules/nrfx/nrfx.h \
  ../../nrf52x-base//sdk/nrf5_sdk_15.3.0/integration/nrfx/nrfx_config.h \
  ../../nrf52x-base//make/config/nrf52832/config/sdk_config.h \
@@ -79,20 +78,24 @@ _build/main.o: main.c \
  ../../nrf52x-base//sdk/nrf5_sdk_15.3.0/components/libraries/util/sdk_resources.h \
  ../../nrf52x-base//sdk/nrf5_sdk_15.3.0/components/softdevice/s132/headers/nrf_sd_def.h \
  ../../nrf52x-base//sdk/nrf5_sdk_15.3.0/modules/nrfx/drivers/nrfx_errors.h \
- ../../nrf52x-base//sdk/nrf5_sdk_15.3.0/modules/nrfx/drivers/include/nrfx_spim.h \
- ../../nrf52x-base//sdk/nrf5_sdk_15.3.0/modules/nrfx/hal/nrf_spim.h \
  ../../nrf52x-base//sdk/nrf5_sdk_15.3.0/modules/nrfx/drivers/include/nrfx_spi.h \
  ../../nrf52x-base//sdk/nrf5_sdk_15.3.0/modules/nrfx/hal/nrf_spi.h \
+ ../../nrf52x-base//sdk/nrf5_sdk_15.3.0/integration/nrfx/legacy/nrf_drv_spi.h \
+ ../../nrf52x-base//sdk/nrf5_sdk_15.3.0/modules/nrfx/drivers/include/nrfx_spim.h \
+ ../../nrf52x-base//sdk/nrf5_sdk_15.3.0/modules/nrfx/hal/nrf_spim.h \
  ../../nrf52x-base//sdk/nrf5_sdk_15.3.0/integration/nrfx/legacy/nrf_drv_gpiote.h \
  ../../nrf52x-base//sdk/nrf5_sdk_15.3.0/modules/nrfx/drivers/include/nrfx_gpiote.h \
  ../../nrf52x-base//sdk/nrf5_sdk_15.3.0/modules/nrfx/hal/nrf_gpiote.h \
  ../../nrf52x-base//sdk/nrf5_sdk_15.3.0/modules/nrfx/hal/nrf_gpio.h \
- ../../nrf52x-base//sdk/nrf5_sdk_15.3.0/components/libraries/delay/nrf_delay.h \
+ /usr/arm-none-eabi/include/stdlib.h \
+ /usr/arm-none-eabi/include/machine/stdlib.h \
+ /usr/arm-none-eabi/include/alloca.h \
  ../../nrf52x-base//sdk/nrf5_sdk_15.3.0/modules/nrfx/hal/nrf_gpio.h \
+ ../../nrf52x-base//sdk/nrf5_sdk_15.3.0/components/libraries/delay/nrf_delay.h \
  ../../nrf52x-base//sdk/nrf5_sdk_15.3.0/components/boards/boards.h \
  /home/student/buckler/software/boards/buckler_revB/./buckler.h \
  ../../nrf52x-base//sdk/nrf5_sdk_15.3.0/modules/nrfx/hal/nrf_saadc.h \
  ../../nrf52x-base//sdk/nrf5_sdk_15.3.0/components/libraries/util/app_error.h \
- /usr/arm-none-eabi/include/stdlib.h \
- /usr/arm-none-eabi/include/machine/stdlib.h \
- /usr/arm-none-eabi/include/alloca.h
+ /usr/arm-none-eabi/include/string.h /usr/arm-none-eabi/include/xlocale.h \
+ /usr/arm-none-eabi/include/strings.h \
+ /usr/arm-none-eabi/include/sys/string.h
