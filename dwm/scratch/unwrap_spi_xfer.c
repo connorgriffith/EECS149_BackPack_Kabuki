@@ -88,9 +88,7 @@ void spi_transfer(uint8_t* tx_buffer, uint8_t tx_length, uint8_t* rx_buffer) {
   }
 }
 
-
 int main(void) {
-  // init and nrf_spi_reset work
   ret_code_t error_code = NRF_SUCCESS;
   init();
     uint8_t tx_buf[4];
@@ -110,18 +108,15 @@ int main(void) {
 
     printf("Trying to send command\n");
 
-//-----To test spi_transfer, comment from here.........
-// /*
     //err_code = nrf_drv_spi_transfer(&spi_instance, tx_buf, 4, NULL, 0);
     err_code = nrf_drv_spi_transfer(&spi_instance, tx_buf, 4, rx_buf, 2);
     printf("rx_buf: %x %x %x\n", rx_buf[0], rx_buf[1], rx_buf[2]);
     
     APP_ERROR_CHECK(err_code);
     
-    //adding below in
+    //adding this in
     uint8_t rx_buffer_length = rx_buf[0];
-    err_code = nrf_drv_spi_transfer(&spi_instance, NULL, 0, rx_buf, 3);
-    //added above in
+    err_code = nrf_drv_spi_transfer(&spi_instance, NULL, 0, rx_buf, 2);    
 
     //err_code = nrf_drv_spi_transfer(&spi_instance, NULL, 0, rx_buf, 2);
     printf("rx_buf: %x %x %x\n", rx_buf[0], rx_buf[1], rx_buf[2]);
@@ -156,11 +151,31 @@ int main(void) {
     }
 
     printf("received: %x %x\n", rx_buf[0], rx_buf[1]);
-// */
-//..........to here.
-// Then uncomment the spi_transfer call below
 
-    //spi_transfer(tx_buf, 4, rx_buf);      // This is our call to our transfer function
+
+    //spi_transfer(tx_buf, 4, rx_buf);
+/*
+  APP_ERROR_CHECK(nrf_drv_spi_transfer(&spi_instance, tx_buf, 4, rx_buf, 2));
+  printf("rx_buffer: %x %x\n", rx_buf[0], rx_buf[1]);
+
+  while(rx_buf[0] == 0x00 && rx_buf[1] == 0x00) {
+    APP_ERROR_CHECK(nrf_drv_spi_transfer(&spi_instance, NULL, 0, rx_buf, 2));
+    printf("rx_buffer: %x %x %x\n", rx_buf[0], rx_buf[1], rx_buf[2]);
+  }
+
+  uint8_t rx_buffer_length = rx_buf[0];
+  printf("SIZE: %d\n", rx_buffer_length);
+  APP_ERROR_CHECK(nrf_drv_spi_transfer(&spi_instance, NULL, 0, rx_buf, 3));
+  printf("rx_buffer: %x %x %x\n", rx_buf[0], rx_buf[1], rx_buf[2]);
+  while(rx_buf[0] == 0x00 || rx_buf[0] == 0xff) {
+    APP_ERROR_CHECK(nrf_drv_spi_transfer(&spi_instance, NULL, 0, rx_buf, 3));
+    printf("rx_buffer idle: ");
+    for(int k = 0; k < rx_buffer_length; k++) {
+      printf("0x%x ", rx_buf[k]);
+    }
+    printf("\n");
+  }
+*/
     // loop forever, running state machine
     while (1) {
         nrf_delay_ms(1);

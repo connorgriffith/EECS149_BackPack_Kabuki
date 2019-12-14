@@ -42,27 +42,19 @@ void init(void) {
   APP_ERROR_CHECK(nrf_drv_spi_init(&spi_instance, &spi_config, NULL, NULL));
 }
 
-void nrf_spi_reset(uint8_t* rx_buf) {
+void nrf_spi_reset(void) {
   uint8_t reset_byte[1];
   reset_byte[0] = 0xff;
   for(int i = 0; i < 3; i++) {
     APP_ERROR_CHECK(nrf_drv_spi_transfer(&spi_instance, reset_byte, 1, NULL, 0));
   }
 
-  while(rx_buf[0] != 0xff && rx_buf[1] != 0xff) {
-    APP_ERROR_CHECK(nrf_drv_spi_transfer(&spi_instance, NULL, 0, rx_buf, 2));
-    nrf_delay_ms(100);
-    printf("rx_buf in reset: 0x%x 0x%x\n", rx_buf[0], rx_buf[1]);
-  }
-
-/*
   uint8_t nrf_rst_response[2] = {0};
   while(nrf_rst_response[0] == 0x00 && nrf_rst_response[1] == 0x00) {
     APP_ERROR_CHECK(nrf_drv_spi_transfer(&spi_instance, NULL, 0, nrf_rst_response, 2));
     nrf_delay_ms(100);
     printf("nrf_rst_response: 0x%x 0x%x\n", nrf_rst_response[0], nrf_rst_response[1]);
   }
-*/
 }
 
 void spi_transfer(uint8_t* tx_buffer, uint8_t tx_length, uint8_t* rx_buffer) {
@@ -70,13 +62,13 @@ void spi_transfer(uint8_t* tx_buffer, uint8_t tx_length, uint8_t* rx_buffer) {
   printf("rx_buffer: %x %x\n", rx_buffer[0], rx_buffer[1]);
 
   while(rx_buffer[0] == 0x00 && rx_buffer[1] == 0x00) {
-    APP_ERROR_CHECK(nrf_drv_spi_transfer(&spi_instance, NULL, 0, rx_buffer, 2));
+    APP_ERROR_CHECK(nrf_drv_spi_transfer(&spi_instance, tx_buffer, tx_length, rx_buffer, 2));
     printf("rx_buffer: %x %x %x\n", rx_buffer[0], rx_buffer[1], rx_buffer[2]);
   }
 
   uint8_t rx_buffer_length = rx_buffer[0];
   printf("SIZE: %d\n", rx_buffer_length);
-  APP_ERROR_CHECK(nrf_drv_spi_transfer(&spi_instance, NULL, 0, rx_buffer, 3));
+  APP_ERROR_CHECK(nrf_drv_spi_transfer(&spi_instance, NULL, 0, rx_buffer, rx_buffer_length));
   printf("rx_buffer: %x %x %x\n", rx_buffer[0], rx_buffer[1], rx_buffer[2]);
   while(rx_buffer[0] == 0x00 || rx_buffer[0] == 0xff) {
     APP_ERROR_CHECK(nrf_drv_spi_transfer(&spi_instance, NULL, 0, rx_buffer, rx_buffer_length));
@@ -88,11 +80,13 @@ void spi_transfer(uint8_t* tx_buffer, uint8_t tx_length, uint8_t* rx_buffer) {
   }
 }
 
-
 int main(void) {
-  // init and nrf_spi_reset work
   ret_code_t error_code = NRF_SUCCESS;
   init();
+/*
+    uint8_t reset_buf[1];
+    reset_buf[0] = 0xff;
+
     uint8_t tx_buf[4];
     tx_buf[0] = 0x28;
     tx_buf[1] = 0x02;
@@ -103,27 +97,50 @@ int main(void) {
     rx_buf[0] = 0;
     rx_buf[1] = 0;
     rx_buf[2] = 0;
-    
-    nrf_spi_reset(rx_buf);
+
+    ret_code_t err_code = nrf_drv_spi_transfer(&spi_instance, reset_buf, 1, NULL, 0);
+    APP_ERROR_CHECK(err_code);
+    err_code = nrf_drv_spi_transfer(&spi_instance, reset_buf, 1, NULL, 0);
+    APP_ERROR_CHECK(err_code);
+    err_code = nrf_drv_spi_transfer(&spi_instance, reset_buf, 1, NULL, 0);
+    APP_ERROR_CHECK(err_code);
+
+    printf("reset\n");
+    while (rx_buf[0] == 0 && rx_buf[1] == 0) {
+        err_code = nrf_drv_spi_transfer(&spi_instance, NULL, 0, rx_buf, 2);
+        APP_ERROR_CHECK(err_code);
+        if (err_code != NRF_SUCCESS) {
+            printf("continuing spi error code: %d\n", (int) err_code);
+        }
+        else {
+            printf("rx_buf: %x %x %x\n", rx_buf[0], rx_buf[1], rx_buf[2]);
+        }
+        nrf_delay_ms(100);
+    }
+*/
+  nrf_spi_reset(); 
+    uint8_t tx_buf[4];
+    tx_buf[0] = 0x28;
+    tx_buf[1] = 0x02;
+    tx_buf[2] = 0x0D;
+    tx_buf[3] = 0x01;
+
+    uint8_t rx_buf[3];
+    rx_buf[0] = 0;
+    rx_buf[1] = 0;
+    rx_buf[2] = 0;
+
     ret_code_t err_code;
-    nrf_delay_ms(10);
+    nrf_delay_ms(1000);
 
     printf("Trying to send command\n");
-
-//-----To test spi_transfer, comment from here.........
-// /*
+/*
     //err_code = nrf_drv_spi_transfer(&spi_instance, tx_buf, 4, NULL, 0);
     err_code = nrf_drv_spi_transfer(&spi_instance, tx_buf, 4, rx_buf, 2);
     printf("rx_buf: %x %x %x\n", rx_buf[0], rx_buf[1], rx_buf[2]);
     
     APP_ERROR_CHECK(err_code);
-    
-    //adding below in
-    uint8_t rx_buffer_length = rx_buf[0];
-    err_code = nrf_drv_spi_transfer(&spi_instance, NULL, 0, rx_buf, 3);
-    //added above in
-
-    //err_code = nrf_drv_spi_transfer(&spi_instance, NULL, 0, rx_buf, 2);
+    err_code = nrf_drv_spi_transfer(&spi_instance, NULL, 0, rx_buf, 2);
     printf("rx_buf: %x %x %x\n", rx_buf[0], rx_buf[1], rx_buf[2]);
     
     APP_ERROR_CHECK(err_code);
@@ -151,16 +168,14 @@ int main(void) {
             printf("continuing spi error code: %d\n", (int) err_code);
         }
         else {
-            printf("rx_buf after 3: %x %x %x\n", rx_buf[0], rx_buf[1], rx_buf[2]);
+            printf("rx_buf: %x %x %x\n", rx_buf[0], rx_buf[1], rx_buf[2]);
         }
     }
 
     printf("received: %x %x\n", rx_buf[0], rx_buf[1]);
-// */
-//..........to here.
-// Then uncomment the spi_transfer call below
+*/
 
-    //spi_transfer(tx_buf, 4, rx_buf);      // This is our call to our transfer function
+    spi_transfer(tx_buf, 4, rx_buf);
     // loop forever, running state machine
     while (1) {
         nrf_delay_ms(1);
