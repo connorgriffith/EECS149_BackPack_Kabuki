@@ -263,7 +263,7 @@ int main(void) {
         //This check is to eliminate the -5.5 returned at times by measure_distance.  
         //Somehow the wheelEncoder is reading 5.5 at times. But then after the 
         //...measure_distance function is called the wheelEncoder gets zeroed
-        if (abs(traveled) > 4.5)
+        if (abs(traveled) > 2.0)
         {
         	start_distance_encoder = sensors.leftWheelEncoder;
         	traveled = measure_distance(sensors.leftWheelEncoder, start_distance_encoder);
