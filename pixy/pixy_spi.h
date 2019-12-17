@@ -17,6 +17,14 @@ static nrf_drv_spi_config_t pixy_spi_config = NRF_DRV_SPI_DEFAULT_CONFIG;
 #define PIXY_SPI_MAX_BUF_SIZE 0xFF
 uint8_t pixy_spi_buf[PIXY_SPI_MAX_BUF_SIZE];
 
+void pixy_spi_init() {
+  nrf_drv_spi_init(&pixy_spi_instance, &pixy_spi_config, NULL, NULL);
+}
+
+void pixy_spi_uninit() {
+  nrf_drv_spi_uninit(&pixy_spi_instance);
+}
+
 int8_t pixy_spi_open(uint32_t arg) {
 
     pixy_spi_config.sck_pin    = PIXY_SPI_SCK;
@@ -27,13 +35,9 @@ int8_t pixy_spi_open(uint32_t arg) {
     pixy_spi_config.mode       = NRF_DRV_SPI_MODE_3;
     pixy_spi_config.bit_order  = NRF_DRV_SPI_BIT_ORDER_MSB_FIRST;
 
-    nrf_drv_spi_init(&pixy_spi_instance, &pixy_spi_config, NULL, NULL);
+    //nrf_drv_spi_init(&pixy_spi_instance, &pixy_spi_config, NULL, NULL);
 
     return 0;
-}
-
-void pixy_spi_close() {
-	nrf_drv_spi_uninit(&pixy_spi_instance);
 }
 
 int16_t pixy_spi_recv(uint8_t *data, uint8_t len, uint16_t *checksumCalculation) {

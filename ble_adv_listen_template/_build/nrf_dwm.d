@@ -1,5 +1,6 @@
-_build/main.o: main.c /usr/arm-none-eabi/include/math.h \
- /usr/arm-none-eabi/include/sys/reent.h \
+_build/nrf_dwm.o: \
+ /home/student/buckler/software/boards/buckler_revB/../../libraries/dwm/nrf_dwm.c \
+ /usr/arm-none-eabi/include/math.h /usr/arm-none-eabi/include/sys/reent.h \
  /usr/arm-none-eabi/include/_ansi.h /usr/arm-none-eabi/include/newlib.h \
  /usr/arm-none-eabi/include/_newlib_version.h \
  /usr/arm-none-eabi/include/sys/config.h \
@@ -31,6 +32,7 @@ _build/main.o: main.c /usr/arm-none-eabi/include/math.h \
  /usr/arm-none-eabi/include/sys/sched.h \
  /usr/arm-none-eabi/include/machine/types.h \
  /usr/arm-none-eabi/include/sys/stdio.h \
+ /home/student/buckler/software/boards/buckler_revB/../../libraries/dwm/nrf_dwm.h \
  ../../nrf52x-base//sdk/nrf5_sdk_15.3.0/components/libraries/util/app_error.h \
  ../../nrf52x-base//sdk/nrf5_sdk_15.3.0/modules/nrfx/mdk/nrf.h \
  ../../nrf52x-base//sdk/nrf5_sdk_15.3.0/modules/nrfx/mdk/nrf52.h \
@@ -114,34 +116,4 @@ _build/main.o: main.c /usr/arm-none-eabi/include/math.h \
  ../../nrf52x-base//sdk/nrf5_sdk_15.3.0/modules/nrfx/drivers/include/nrfx_spi.h \
  ../../nrf52x-base//sdk/nrf5_sdk_15.3.0/modules/nrfx/hal/nrf_spi.h \
  /home/student/buckler/software/boards/buckler_revB/./buckler.h \
- ../../nrf52x-base//sdk/nrf5_sdk_15.3.0/modules/nrfx/hal/nrf_saadc.h \
- /home/student/buckler/software/boards/buckler_revB/../../libraries/nhd_display/display.h \
- /home/student/buckler/software/boards/buckler_revB/../../libraries/kobuki/kobukiActuator.h \
- /home/student/buckler/software/boards/buckler_revB/../../libraries/kobuki/kobukiUART.h \
- /home/student/buckler/software/boards/buckler_revB/../../libraries/kobuki/kobukiSensorPoll.h \
- /home/student/buckler/software/boards/buckler_revB/../../libraries/kobuki/kobukiSensorTypes.h \
- /home/student/buckler/software/boards/buckler_revB/../../libraries/kobuki/kobukiSensor.h \
- /home/student/buckler/software/boards/buckler_revB/../../libraries/kobuki/kobukiSensorTypes.h \
- /home/student/buckler/software/boards/buckler_revB/../../libraries/kobuki/kobukiUtilities.h \
- /home/student/buckler/software/boards/buckler_revB/../../libraries/mpu9250/mpu9250.h \
- ../../nrf52x-base//sdk/nrf5_sdk_15.3.0/components/libraries/twi_mngr/nrf_twi_mngr.h \
- ../../nrf52x-base//sdk/nrf5_sdk_15.3.0/integration/nrfx/legacy/nrf_drv_twi.h \
- ../../nrf52x-base//sdk/nrf5_sdk_15.3.0/modules/nrfx/drivers/include/nrfx_twim.h \
- ../../nrf52x-base//sdk/nrf5_sdk_15.3.0/modules/nrfx/hal/nrf_twim.h \
- ../../nrf52x-base//sdk/nrf5_sdk_15.3.0/modules/nrfx/drivers/include/nrfx_twi.h \
- ../../nrf52x-base//sdk/nrf5_sdk_15.3.0/modules/nrfx/hal/nrf_twi.h \
- ../../nrf52x-base//sdk/nrf5_sdk_15.3.0/components/libraries/queue/nrf_queue.h \
- ../../nrf52x-base//lib/simple_ble/simple_ble.h \
- ../../nrf52x-base//sdk/nrf5_sdk_15.3.0/components/softdevice/s132/headers/ble_types.h \
- ../../nrf52x-base//sdk/nrf5_sdk_15.3.0/components/ble/common/ble_advdata.h \
- ../../nrf52x-base//sdk/nrf5_sdk_15.3.0/components/softdevice/s132/headers/ble.h \
- ../../nrf52x-base//sdk/nrf5_sdk_15.3.0/components/softdevice/s132/headers/ble_err.h \
- ../../nrf52x-base//sdk/nrf5_sdk_15.3.0/components/softdevice/s132/headers/ble_gap.h \
- ../../nrf52x-base//sdk/nrf5_sdk_15.3.0/components/softdevice/s132/headers/ble_hci.h \
- ../../nrf52x-base//sdk/nrf5_sdk_15.3.0/components/softdevice/s132/headers/ble_ranges.h \
- ../../nrf52x-base//sdk/nrf5_sdk_15.3.0/components/softdevice/s132/headers/ble_types.h \
- ../../nrf52x-base//sdk/nrf5_sdk_15.3.0/components/softdevice/s132/headers/ble_l2cap.h \
- ../../nrf52x-base//sdk/nrf5_sdk_15.3.0/components/softdevice/s132/headers/ble_gatt.h \
- ../../nrf52x-base//sdk/nrf5_sdk_15.3.0/components/softdevice/s132/headers/ble_gattc.h \
- ../../nrf52x-base//sdk/nrf5_sdk_15.3.0/components/softdevice/s132/headers/ble_gatts.h \
- states.h
+ ../../nrf52x-base//sdk/nrf5_sdk_15.3.0/modules/nrfx/hal/nrf_saadc.h

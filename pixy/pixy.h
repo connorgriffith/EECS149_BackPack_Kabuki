@@ -100,9 +100,9 @@ int16_t getSync() {
       }
       cprev = c;
     }
-	  // If we've read some bytes and no sync, then wait and try again.
-	  // And do that several more times before we give up.  
-	  // Pixy guarantees to respond within 100us.
+    // If we've read some bytes and no sync, then wait and try again.
+    // And do that several more times before we give up.  
+    // Pixy guarantees to respond within 100us.
     if (i >= 4) {
       if (j >= 4) {
         return PIXY_RESULT_ERROR;
@@ -123,6 +123,7 @@ int16_t recvPacket() {
   res = getSync();
   
   if (res < 0) {
+    pixy_spi_uninit();
     return res;
   }
 
@@ -130,6 +131,7 @@ int16_t recvPacket() {
     
     res = pixy_spi_recv(m_buf, 4 - offset, NULL);
     if (res < 0) {
+      pixy_spi_uninit();
       return res;
     }
 
@@ -143,16 +145,19 @@ int16_t recvPacket() {
 
     res = pixy_spi_recv(m_buf, m_length, &csCalc);
     if (res < 0) {
+      pixy_spi_uninit();
       return res;
     }
 
     if (csSerial!=csCalc)
     {
+      pixy_spi_uninit();
       return PIXY_RESULT_CHECKSUM_ERROR;
     }
   } else {  
     res = pixy_spi_recv(m_buf, 2, NULL);
     if (res < 0) {
+      pixy_spi_uninit();
       return res;
     }
 
@@ -163,14 +168,19 @@ int16_t recvPacket() {
 
     res = pixy_spi_recv(m_buf, m_length, NULL);
     if (res < 0) {
+      pixy_spi_uninit();
       return res;
     }
   }
+  pixy_spi_uninit();
   return PIXY_RESULT_OK;
 }
 
 
 int16_t sendPacket() {
+
+  pixy_spi_init();
+
   // write header info at beginnig of buffer
   m_buf[0] = PIXY_NO_CHECKSUM_SYNC&0xff;
   m_buf[1] = PIXY_NO_CHECKSUM_SYNC>>8;
@@ -197,16 +207,16 @@ int8_t getVersion() {
 }
 
 void printVersion() {
-	if (pixyVersion != NULL) {
-	    char buf[64];
+  if (pixyVersion != NULL) {
+      char buf[64];
         sprintf(buf, "hardware ver: 0x%x firmware ver: %d.%d.%d %s", pixyVersion->hardware, 
-    	                                                             pixyVersion->firmwareMajor,
-    	                                                             pixyVersion->firmwareMinor,
-    	                                                             pixyVersion->firmwareBuild, 
-    	                                                             pixyVersion->firmwareType);
+                                                                   pixyVersion->firmwareMajor,
+                                                                   pixyVersion->firmwareMinor,
+                                                                   pixyVersion->firmwareBuild, 
+                                                                   pixyVersion->firmwareType);
         printf("%s\n", buf);
     } else {
-    	printf("Version unavailable. Call getVersion to record Pixy version");
+      printf("Version unavailable. Call getVersion to record Pixy version");
     }
 }
 
@@ -240,23 +250,19 @@ int8_t pixyInit(uint32_t arg) {
   
   int delay_count = 0;
   while (delay_count < 5000) {
-  	if (getVersion() >= 0) {
-  		getResolution();
-  		return PIXY_RESULT_OK;
-  	}
-  	pixy_spi_delayms(1);
-  	delay_count++;
+    if (getVersion() >= 0) {
+      getResolution();
+      return PIXY_RESULT_OK;
+    }
+    pixy_spi_delayms(1);
+    delay_count++;
   }
   
   return PIXY_RESULT_TIMEOUT;
 }
 
-void pixyUninit() {
-  pixy_spi_close();
-}
-
 int8_t setLED(uint8_t r, uint8_t g, uint8_t b) {
-	uint32_t res;
+  uint32_t res;
   m_bufPayload[0] = r;
   m_bufPayload[1] = g;
   m_bufPayload[2] = b;
@@ -266,7 +272,7 @@ int8_t setLED(uint8_t r, uint8_t g, uint8_t b) {
   if (recvPacket()==0 && m_type==PIXY_TYPE_RESPONSE_RESULT && m_length==4)
   {
     res = *(uint32_t *)m_buf;
-    return (int8_t)res;	
+    return (int8_t)res; 
   }
   else
     return PIXY_RESULT_ERROR;  // some kind of bitstream error
@@ -283,9 +289,8 @@ int8_t setLamp(uint8_t upper, uint8_t lower) {
   sendPacket();
   if (recvPacket()==0 && m_type==PIXY_TYPE_RESPONSE_RESULT && m_length==4) {
     res = *(uint32_t *)m_buf;
-    return (int8_t)res;	
+    return (int8_t)res; 
   } else {
-      return PIXY_RESULT_ERROR;  // some kind of bitstream error	
+      return PIXY_RESULT_ERROR;  // some kind of bitstream error  
   }
 }
-

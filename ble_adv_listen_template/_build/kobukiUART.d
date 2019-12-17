@@ -34,10 +34,10 @@ _build/kobukiUART.o: \
  /usr/arm-none-eabi/include/xlocale.h \
  /usr/arm-none-eabi/include/strings.h \
  /usr/arm-none-eabi/include/sys/string.h \
- ../../nrf52x-base//sdk/nrf5_sdk_15.3.0/components/libraries/serial/nrf_serial.h \
  /usr/lib/gcc/arm-none-eabi/7.3.1/include/stdint.h \
  /usr/arm-none-eabi/include/stdint.h \
  /usr/arm-none-eabi/include/sys/_intsup.h \
+ ../../nrf52x-base//sdk/nrf5_sdk_15.3.0/components/libraries/serial/nrf_serial.h \
  /usr/lib/gcc/arm-none-eabi/7.3.1/include/stdbool.h \
  ../../nrf52x-base//sdk/nrf5_sdk_15.3.0/integration/nrfx/legacy/nrf_drv_uart.h \
  ../../nrf52x-base//sdk/nrf5_sdk_15.3.0/modules/nrfx/nrfx.h \
