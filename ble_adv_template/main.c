@@ -253,8 +253,8 @@ int main(void) {
         // if (reInitClock)
         // {
         //   printf("Only happen right after turn\n");
-        // 	firstClock = clock();
-        // 	reInitClock = false;
+        //  firstClock = clock();
+        //  reInitClock = false;
         // }
          
 
@@ -263,10 +263,10 @@ int main(void) {
         //This check is to eliminate the -5.5 returned at times by measure_distance.  
         //Somehow the wheelEncoder is reading 5.5 at times. But then after the 
         //...measure_distance function is called the wheelEncoder gets zeroed
-        if (abs(traveled) > 2.0)
+        if (abs(traveled) > 4.0)
         {
-        	start_distance_encoder = sensors.leftWheelEncoder;
-        	traveled = measure_distance(sensors.leftWheelEncoder, start_distance_encoder);
+          start_distance_encoder = sensors.leftWheelEncoder;
+          traveled = measure_distance(sensors.leftWheelEncoder, start_distance_encoder);
         
         }
 
@@ -307,16 +307,16 @@ int main(void) {
       //     printf("%f\n", (float)clock());
       //     printf("\n");
       //     printf("\n");
-			   // printf("Time passed: %f\n", (float)endTime/CLOCKS_PER_SEC);
+         // printf("Time passed: %f\n", (float)endTime/CLOCKS_PER_SEC);
 
       //    //Sending an agle of 0 so that the actual angle gets through padded with angle = 0
          
 
       //     if ((float)endTime/CLOCKS_PER_SEC >= 0.3 && !beforeFirstTurn)
       //     {
-      //       printf("Advertising stopped!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!\n");	
-      //     	advertising_stop();
-      //     	reInitClock = false;
+      //       printf("Advertising stopped!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!\n"); 
+      //      advertising_stop();
+      //      reInitClock = false;
       //     } 
           //  else if (!beforeFirstTurn){
           //   printf("No Angle pointer Advertised!!!!!\n");  
