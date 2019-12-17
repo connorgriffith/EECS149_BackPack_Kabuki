@@ -329,7 +329,7 @@ int main(void) {
 
 
 
-
+  //print_state(curr_state);
   while(1) {
 
     kobukiSensorPoll(&sensors);
@@ -411,7 +411,7 @@ int main(void) {
           curr_state = OFF;
         } 
       
-       else if (traveled >= 0.6 && comingFromWaiting) {
+       else if (traveled >= 0.63 && comingFromWaiting) {
         printf("Should only happen after traveled 0.3m\n\n");
           curr_state = TURNING;
           mpu9250_start_gyro_integration();
