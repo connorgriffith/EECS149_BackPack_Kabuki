@@ -281,7 +281,7 @@ int main(void) {
           //start_distance_encoder = sensors.leftWheelEncoder;
           // nrf_delay_ms(500);
           simple_ble_adv_manuf_data((uint8_t*) &makeFollowerStopVal, 4);
-          app_timer_create(&adv_timer, APP_TIMER_MODE_SINGLE_SHOT, (app_timer_timeout_handler_t) timer_callback);
+          //app_timer_create(&adv_timer, APP_TIMER_MODE_SINGLE_SHOT, (app_timer_timeout_handler_t) timer_callback);
             app_timer_start(adv_timer, APP_TIMER_TICKS(700), NULL); 
 
           mpu9250_start_gyro_integration(); 
@@ -327,7 +327,7 @@ int main(void) {
           if (!beforeFirstTurn && !firedOnceForTurn) 
           {
             printf("Should called advertising_stop\n");
-            app_timer_create(&adv_timer, APP_TIMER_MODE_SINGLE_SHOT, (app_timer_timeout_handler_t) timer_callback);
+            //app_timer_create(&adv_timer, APP_TIMER_MODE_SINGLE_SHOT, (app_timer_timeout_handler_t) timer_callback);
             app_timer_start(adv_timer, APP_TIMER_TICKS(600), NULL); // 3000 milliseconds  *****This used to be 200 for it to work  when leader weas only communicating to follower
             firedOnceForTurn = true;
 

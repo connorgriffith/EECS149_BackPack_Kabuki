@@ -288,12 +288,18 @@ int main(void) {
   int delay_count = 0;
   bool inRange = true;
 
+  //BLE timer
   app_timer_init();
   error_code = app_timer_create(&adv_timer, APP_TIMER_MODE_SINGLE_SHOT, (app_timer_timeout_handler_t) timer_callback);
   APP_ERROR_CHECK(error_code);
   
 
-advertising_stop();
+  //Pixy timer
+  error_code = app_timer_create(&pixy_timer, APP_TIMER_MODE_REPEATED, (app_timer_timeout_handler_t) pixy_timer_callback);
+  APP_ERROR_CHECK(error_code);
+
+
+  advertising_stop();
 
   // TODO: Start scanning
   //BLE Event above will now be called whenever there is an event to decode
@@ -361,7 +367,7 @@ advertising_stop();
         //Reinit pixy timer if coming from Turning
         if (pixyTimerREINIT)
         {
-          app_timer_create(&pixy_timer, APP_TIMER_MODE_REPEATED, (app_timer_timeout_handler_t) pixy_timer_callback);
+          //app_timer_create(&pixy_timer, APP_TIMER_MODE_REPEATED, (app_timer_timeout_handler_t) pixy_timer_callback);
         app_timer_start(pixy_timer, APP_TIMER_TICKS(500), NULL); 
         pixyTimerREINIT = false;
         }
@@ -412,7 +418,7 @@ advertising_stop();
           comingFromWaiting = false;
 
           simple_ble_adv_manuf_data((uint8_t*) &stopLeaderVal, 4);
-          app_timer_create(&adv_timer, APP_TIMER_MODE_SINGLE_SHOT, (app_timer_timeout_handler_t) timer_callback);
+          //app_timer_create(&adv_timer, APP_TIMER_MODE_SINGLE_SHOT, (app_timer_timeout_handler_t) timer_callback);
           app_timer_start(adv_timer, APP_TIMER_TICKS(1000), NULL); 
           //pixyTimerGoodToFire = false;
 
@@ -453,7 +459,7 @@ advertising_stop();
           start_distance_encoder = sensors.leftWheelEncoder;
 
           simple_ble_adv_manuf_data((uint8_t*) &startLeaderAgain, 4);
-          app_timer_create(&adv_timer, APP_TIMER_MODE_SINGLE_SHOT, (app_timer_timeout_handler_t) timer_callback);
+          //app_timer_create(&adv_timer, APP_TIMER_MODE_SINGLE_SHOT, (app_timer_timeout_handler_t) timer_callback);
           app_timer_start(adv_timer, APP_TIMER_TICKS(500), NULL); 
           
           //logic for when to allow pixy to execute again
