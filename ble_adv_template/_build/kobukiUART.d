@@ -1,4 +1,4 @@
-_build/kobukiUART.o-debug: \
+_build/kobukiUART.o: \
  /home/student/buckler/software/boards/buckler_revB/../../libraries/kobuki/kobukiUART.c \
  /usr/arm-none-eabi/include/stdio.h /usr/arm-none-eabi/include/_ansi.h \
  /usr/arm-none-eabi/include/newlib.h \

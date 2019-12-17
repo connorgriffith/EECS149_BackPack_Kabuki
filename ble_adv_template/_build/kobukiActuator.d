@@ -1,4 +1,4 @@
-_build/kobukiActuator.o-debug: \
+_build/kobukiActuator.o: \
  /home/student/buckler/software/boards/buckler_revB/../../libraries/kobuki/kobukiActuator.c \
  /home/student/buckler/software/boards/buckler_revB/../../libraries/kobuki/kobukiActuator.h \
  /usr/lib/gcc/arm-none-eabi/7.3.1/include/stdbool.h \

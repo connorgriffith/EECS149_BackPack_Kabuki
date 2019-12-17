@@ -9,11 +9,6 @@
 
 #include "nrf_dwm.h"
 
-#define DWM_CS   NRF_GPIO_PIN_MAP(0,18)
-#define DWM_SCLK NRF_GPIO_PIN_MAP(0,17)
-#define DWM_MOSI NRF_GPIO_PIN_MAP(0,16)
-#define DWM_MISO NRF_GPIO_PIN_MAP(0,15)
-
 void spi_init(nrf_drv_spi_t* spi_instance, nrf_drv_spi_config_t* spi_config) {
   spi_config->sck_pin = DWM_SCLK;
   spi_config->mosi_pin = DWM_MOSI;

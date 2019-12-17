@@ -143,4 +143,13 @@ _build/main.o: main.c /usr/lib/gcc/arm-none-eabi/7.3.1/include/stdbool.h \
  ../../nrf52x-base//sdk/nrf5_sdk_15.3.0/modules/nrfx/hal/nrf_twim.h \
  ../../nrf52x-base//sdk/nrf5_sdk_15.3.0/modules/nrfx/drivers/include/nrfx_twi.h \
  ../../nrf52x-base//sdk/nrf5_sdk_15.3.0/modules/nrfx/hal/nrf_twi.h \
- ../../nrf52x-base//sdk/nrf5_sdk_15.3.0/components/libraries/queue/nrf_queue.h
+ ../../nrf52x-base//sdk/nrf5_sdk_15.3.0/components/libraries/queue/nrf_queue.h \
+ /home/student/buckler/software/boards/buckler_revB/../../libraries/pixy/pixy_ftl.h \
+ /home/student/buckler/software/boards/buckler_revB/../../libraries/pixy/pixy_ccc.h \
+ /home/student/buckler/software/boards/buckler_revB/../../libraries/pixy/pixy.h \
+ /home/student/buckler/software/boards/buckler_revB/../../libraries/pixy/pixy_spi.h \
+ ../../nrf52x-base//sdk/nrf5_sdk_15.3.0/integration/nrfx/legacy/nrf_drv_gpiote.h \
+ ../../nrf52x-base//sdk/nrf5_sdk_15.3.0/modules/nrfx/drivers/include/nrfx_gpiote.h \
+ ../../nrf52x-base//sdk/nrf5_sdk_15.3.0/modules/nrfx/hal/nrf_gpiote.h \
+ ../../nrf52x-base//sdk/nrf5_sdk_15.3.0/modules/nrfx/hal/nrf_gpio.h \
+ /usr/arm-none-eabi/include/assert.h

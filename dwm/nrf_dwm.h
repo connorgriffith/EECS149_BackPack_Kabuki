@@ -15,10 +15,10 @@
 
 #include "buckler.h"
 
-#define DWM_CS   NRF_GPIO_PIN_MAP(0,18)
-#define DWM_SCLK NRF_GPIO_PIN_MAP(0,17)
-#define DWM_MOSI NRF_GPIO_PIN_MAP(0,16)
-#define DWM_MISO NRF_GPIO_PIN_MAP(0,15)
+#define DWM_CS   NRF_GPIO_PIN_MAP(0,14)
+#define DWM_SCLK NRF_GPIO_PIN_MAP(0,13)
+#define DWM_MOSI NRF_GPIO_PIN_MAP(0,12)
+#define DWM_MISO NRF_GPIO_PIN_MAP(0,11)
 
 
 /*

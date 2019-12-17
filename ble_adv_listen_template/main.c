@@ -28,8 +28,11 @@
 #include "kobukiUtilities.h"
 #include "mpu9250.h"
 
+#include "pixy_ftl.h"
+
 // Create a timer
 APP_TIMER_DEF(adv_timer);
+APP_TIMER_DEF(pixy_timer);
 
 // I2C manager
 NRF_TWI_MNGR_DEF(twi_mngr_instance, 5, 0);
@@ -65,17 +68,22 @@ uint16_t start_distance_encoder = 0;
 bool reinitStartEncorderVal = false;
 int stopLeaderVal = 250;
 int startLeaderAgain = 240;
+int kobukiLeftWheelSpeedCmd = 0;
+int kobukiRightWheelSpeedCmd = 0;
+LeaderDirection direction;
+bool pixyTimerREINIT = false;
+
 
 void print_state(states current_state){
   switch(current_state){
     case OFF:
-      display_write("OFF", DISPLAY_LINE_0);
+      //display_write("OFF", DISPLAY_LINE_0);
       break;
     case DRIVING:
-      display_write("DRIVING", DISPLAY_LINE_0);
+      //display_write("DRIVING", DISPLAY_LINE_0);
       break;
     case TURNING:
-      display_write("TURNING", DISPLAY_LINE_0);
+      //display_write("TURNING", DISPLAY_LINE_0);
       break;
     default:
       break;
@@ -85,6 +93,34 @@ void print_state(states current_state){
 static void timer_callback (void * p_context) {
   printf("Called advertising_stop!!!!!!!!!!!!\n");
   advertising_stop();
+}
+
+static void pixy_timer_callback (void * p_context) {
+	printf("Pixy timer fired\n");
+  direction = pixy_ftl_locate_leader();
+
+  	switch (direction) {
+  		case LEADER_RIGHT:
+  		  //printf("Turn Right!\n");
+  		  kobukiLeftWheelSpeedCmd = 115;
+  		  kobukiRightWheelSpeedCmd = 100;
+  		  break;
+  		case LEADER_STRAIGHT:
+  			kobukiLeftWheelSpeedCmd = 100;
+  			kobukiRightWheelSpeedCmd = 100;
+  		  //printf("Drive Straight!\n");
+  		  break;
+  		case LEADER_LEFT:\
+  			kobukiLeftWheelSpeedCmd = 100;
+  			kobukiRightWheelSpeedCmd = 115;
+  		  //printf("Turn left!\n");
+  		  break;
+  		case LEADER_NOT_VISIBLE:
+  			// kobukiLeftWheelSpeedCmd = 0;
+  			// kobukiRightWheelSpeedCmd = 0;
+  		  printf("Leader not visible...\n");
+
+  	}
 }
 
 // TODO: implement BLE advertisement callback
@@ -108,7 +144,7 @@ void ble_evt_adv_report(ble_evt_t const* p_ble_evt) {
       length = data[i];
       if (flag) {
         // dataPtr = &data[i+4];
-        dataPtr = &data[i+4];  ///THIS WAS A +4 FOR IT TO WORK PROPERLY.......!!!!!!!!!!!!!!!!!!!!!!
+        dataPtr = &data[i+4];  
 
         break;
       }
@@ -135,7 +171,9 @@ void ble_evt_adv_report(ble_evt_t const* p_ble_evt) {
         //kobukiDriveDirect(0, 0);
         printf("Will drive 0.2 m then turn\n angle: %d\n", adv_angle);
 
-        kobukiDriveDirect(100, 100);
+        kobukiLeftWheelSpeedCmd = 100;
+        kobukiRightWheelSpeedCmd = 100;
+        kobukiDriveDirect(kobukiLeftWheelSpeedCmd, kobukiRightWheelSpeedCmd);
         comingFromWaiting = true;
         reinitStartEncorderVal = true;
         curr_state = DRIVING;
@@ -189,27 +227,27 @@ int main(void) {
   
 
   // initialize LEDs
-  nrf_gpio_pin_dir_set(23, NRF_GPIO_PIN_DIR_OUTPUT);
-  nrf_gpio_pin_dir_set(24, NRF_GPIO_PIN_DIR_OUTPUT);
-  nrf_gpio_pin_dir_set(25, NRF_GPIO_PIN_DIR_OUTPUT);
+  //nrf_gpio_pin_dir_set(23, NRF_GPIO_PIN_DIR_OUTPUT);
+  //nrf_gpio_pin_dir_set(24, NRF_GPIO_PIN_DIR_OUTPUT);
+  //nrf_gpio_pin_dir_set(25, NRF_GPIO_PIN_DIR_OUTPUT);
 
   // initialize display
-  nrf_drv_spi_t spi_instance = NRF_DRV_SPI_INSTANCE(1);
-  nrf_drv_spi_config_t spi_config = {
-    .sck_pin = BUCKLER_LCD_SCLK,
-    .mosi_pin = BUCKLER_LCD_MOSI,
-    .miso_pin = BUCKLER_LCD_MISO,
-    .ss_pin = BUCKLER_LCD_CS,
-    .irq_priority = NRFX_SPI_DEFAULT_CONFIG_IRQ_PRIORITY,
-    .orc = 0,
-    .frequency = NRF_DRV_SPI_FREQ_4M,
-    .mode = NRF_DRV_SPI_MODE_2,
-    .bit_order = NRF_DRV_SPI_BIT_ORDER_MSB_FIRST
-  };
-  error_code = nrf_drv_spi_init(&spi_instance, &spi_config, NULL, NULL);
-  APP_ERROR_CHECK(error_code);
-  display_init(&spi_instance);
-  printf("Display initialized!\n");
+  // nrf_drv_spi_t spi_instance = NRF_DRV_SPI_INSTANCE(1);
+  // nrf_drv_spi_config_t spi_config = {
+  //   .sck_pin = BUCKLER_LCD_SCLK,
+  //   .mosi_pin = BUCKLER_LCD_MOSI,
+  //   .miso_pin = BUCKLER_LCD_MISO,
+  //   .ss_pin = BUCKLER_LCD_CS,
+  //   .irq_priority = NRFX_SPI_DEFAULT_CONFIG_IRQ_PRIORITY,
+  //   .orc = 0,
+  //   .frequency = NRF_DRV_SPI_FREQ_4M,
+  //   .mode = NRF_DRV_SPI_MODE_2,
+  //   .bit_order = NRF_DRV_SPI_BIT_ORDER_MSB_FIRST
+  // };
+  // error_code = nrf_drv_spi_init(&spi_instance, &spi_config, NULL, NULL);
+  // APP_ERROR_CHECK(error_code);
+  // display_init(&spi_instance);
+  // printf("Display initialized!\n");
 
   // initialize i2c master (two wire interface)
   nrf_drv_twi_config_t i2c_config = NRF_DRV_TWI_DEFAULT_CONFIG;
@@ -226,6 +264,11 @@ int main(void) {
   printf("Kobuki initialized!\n");
 
 
+  printf("Initializing pixy\n");
+  pixy_ftl_init();
+  printf("Changing pixy tolerance\n");
+  pixy_ftl_change_tolerance(0.2f);
+  printf("Done Initializing pixy\n");
 
   // Setup BLE
   // Note: simple BLE is our own library. You can find it in `nrf5x-base/lib/simple_ble/`
@@ -238,34 +281,25 @@ int main(void) {
   int delay_count = 0;
   bool inRange = true;
 
+	printf("Making App timer\n");
   app_timer_init();
   error_code = app_timer_create(&adv_timer, APP_TIMER_MODE_SINGLE_SHOT, (app_timer_timeout_handler_t) timer_callback);
   APP_ERROR_CHECK(error_code);
+  printf("App error code check fine\n");
   
 
-advertising_stop();
+  advertising_stop();
+  printf("advertising stopped\n");
 
   // TODO: Start scanning
   //BLE Event above will now be called whenever there is an event to decode
   scanning_start();
+  printf("Going into main while loop\n");
 
+  //Pixy timer stuff
+  app_timer_create(&pixy_timer, APP_TIMER_MODE_REPEATED, (app_timer_timeout_handler_t) pixy_timer_callback);
+  app_timer_start(pixy_timer, APP_TIMER_TICKS(1000), NULL); 
 
-
-
-/*
-	_________________If the pixy camera does not work___________________
-
-	Idea:  I can periodically send a couple gyroscope values and verify is the follower and leader are the same values.
-
-	If (leaderGyro < followerGyro) {
-	  Turn follower to the right
-	}
-
-	else if (leaderGyro > followerGyro) {
-	 Turn Follower to the left
-	}
-
-*/
 
 
 
@@ -273,7 +307,9 @@ advertising_stop();
   while(1) {
 
     kobukiSensorPoll(&sensors);
+    //printf("Polled Kobuki sensors\n");
     print_state(curr_state);
+    kobukiDriveDirect(kobukiLeftWheelSpeedCmd, kobukiRightWheelSpeedCmd);
 
 
 
@@ -287,7 +323,9 @@ advertising_stop();
 
         } else {
           curr_state = OFF;
-          kobukiDriveDirect(0, 0);
+          kobukiLeftWheelSpeedCmd = 0;
+          kobukiRightWheelSpeedCmd = 0;
+          //kobukiDriveDirect(kobukiLeftWheelSpeedCmd, kobukiRightWheelSpeedCmd);
         }
 
         break; // each case needs to end with break!
@@ -296,18 +334,32 @@ advertising_stop();
       }
 
       case DRIVING: {
-      	if (reinitStartEncorderVal && comingFromWaiting)
-      	{
-      		start_distance_encoder = sensors.leftWheelEncoder;
-      		reinitStartEncorderVal = false;
-      	}
+
+      	//Reinit pixy timer if coming from Turning
+     //  	if (pixyTimerREINIT)
+     //  	{
+     //  		app_timer_create(&pixy_timer, APP_TIMER_MODE_REPEATED, (app_timer_timeout_handler_t) pixy_timer_callback);
+  			// app_timer_start(pixy_timer, APP_TIMER_TICKS(1000), NULL); 
+  			// pixyTimerREINIT = false;
+     //  	}
 
       	//Adjust the speed if leader not in range
       	if (!inRange)
       	{
-      		kobukiDriveDirect(130, 130);
+      		kobukiLeftWheelSpeedCmd = 130;
+      		kobukiRightWheelSpeedCmd = 130;
       	} else {
-      		kobukiDriveDirect(100, 100);
+      		kobukiLeftWheelSpeedCmd = 100;
+      		kobukiRightWheelSpeedCmd = 100;
+      	}
+
+      	kobukiDriveDirect(kobukiLeftWheelSpeedCmd, kobukiRightWheelSpeedCmd);
+
+      	//Follower move up to leader's turning location 
+      	if (reinitStartEncorderVal && comingFromWaiting)
+      	{
+      		start_distance_encoder = sensors.leftWheelEncoder;
+      		reinitStartEncorderVal = false;
       	}
 
 
@@ -346,12 +398,12 @@ advertising_stop();
        else {
           curr_state = DRIVING;
      
-          char buf1[16];
-          snprintf(buf1, 16, "%f", traveled);
-          display_write(buf1, DISPLAY_LINE_1);
+          //char buf1[16];
+          // snprintf(buf1, 16, "%f", traveled);
+          // display_write(buf1, DISPLAY_LINE_1);
 
          
-          kobukiDriveDirect(100, 100);
+          kobukiDriveDirect(kobukiLeftWheelSpeedCmd, kobukiRightWheelSpeedCmd);
   
           
 
@@ -362,12 +414,19 @@ advertising_stop();
 
       case TURNING: {
        
+      	//Stop pixy timer just while turning
+
         angle_turned = (int) mpu9250_read_gyro_integration().z_axis;
+
+        //Stop the pixy timer for turning
+        //app_timer_stop(&pixy_timer);
 
       
         if (angle_turned  <= adv_angle) {
           angle_turned = 0;
-          kobukiDriveDirect(100, 100);
+          kobukiLeftWheelSpeedCmd = 100;
+          kobukiRightWheelSpeedCmd = 100;
+          //kobukiDriveDirect(kobukiLeftWheelSpeedCmd, kobukiRightWheelSpeedCmd);
           curr_state = DRIVING;
           mpu9250_stop_gyro_integration();
           start_distance_encoder = sensors.leftWheelEncoder;
@@ -375,15 +434,17 @@ advertising_stop();
           simple_ble_adv_manuf_data((uint8_t*) &startLeaderAgain, 4);
           app_timer_create(&adv_timer, APP_TIMER_MODE_SINGLE_SHOT, (app_timer_timeout_handler_t) timer_callback);
            app_timer_start(adv_timer, APP_TIMER_TICKS(1000), NULL); 
+
+           pixyTimerREINIT = true;
          
 
         } else {
           curr_state = TURNING;
           kobukiDriveDirect(50, -50);
 
-          char buf[16];
-          snprintf(buf, 16, "%d", angle_turned);
-          display_write(buf, DISPLAY_LINE_1);
+          //char buf[16];
+          // snprintf(buf, 16, "%d", angle_turned);
+          // display_write(buf, DISPLAY_LINE_1);
         }
 
         break;
