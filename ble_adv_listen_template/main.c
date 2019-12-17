@@ -71,7 +71,8 @@ int startLeaderAgain = 240;
 int kobukiLeftWheelSpeedCmd = 0;
 int kobukiRightWheelSpeedCmd = 0;
 LeaderDirection direction;
-bool pixyTimerREINIT = false;
+bool pixyTimerREINIT = true;
+bool pixyTimerGoodToFire = true;
 
 
 void print_state(states current_state){
@@ -93,6 +94,7 @@ void print_state(states current_state){
 static void timer_callback (void * p_context) {
   printf("Called advertising_stop!!!!!!!!!!!!\n");
   advertising_stop();
+  pixyTimerREINIT = true;
 }
 
 static void pixy_timer_callback (void * p_context) {
@@ -163,13 +165,18 @@ void ble_evt_adv_report(ble_evt_t const* p_ble_evt) {
        	 //This is when the kobuki needs to stop and wait for the leader to finish its turn
        	 curr_state = OFF;
        	 printf("Got the adv to stay still\n angle: %d\n", adv_angle);
+
+       	//Stop the pixy timer for turning
+        app_timer_stop(pixy_timer);
+        setLED(0, 0, 0);
+
        }
 
        else if (turn_right == -1) {
         // curr_state = BRAKE;
         // next_state = TURNING;
         //kobukiDriveDirect(0, 0);
-        printf("Will drive 0.2 m then turn\n angle: %d\n", adv_angle);
+        printf("Will drive 0.4 m then turn: %d\n", adv_angle);
 
         kobukiLeftWheelSpeedCmd = 100;
         kobukiRightWheelSpeedCmd = 100;
@@ -298,7 +305,7 @@ int main(void) {
 
   //Pixy timer stuff
   app_timer_create(&pixy_timer, APP_TIMER_MODE_REPEATED, (app_timer_timeout_handler_t) pixy_timer_callback);
-  app_timer_start(pixy_timer, APP_TIMER_TICKS(1000), NULL); 
+  app_timer_start(pixy_timer, APP_TIMER_TICKS(500), NULL); 
 
 
 
@@ -320,12 +327,13 @@ int main(void) {
       	if (is_button_pressed(&sensors)) {
           curr_state = DRIVING;
           start_distance_encoder = sensors.leftWheelEncoder;
+          kobukiDriveDirect(kobukiLeftWheelSpeedCmd, kobukiRightWheelSpeedCmd);
 
         } else {
           curr_state = OFF;
           kobukiLeftWheelSpeedCmd = 0;
           kobukiRightWheelSpeedCmd = 0;
-          //kobukiDriveDirect(kobukiLeftWheelSpeedCmd, kobukiRightWheelSpeedCmd);
+          kobukiDriveDirect(kobukiLeftWheelSpeedCmd, kobukiRightWheelSpeedCmd);
         }
 
         break; // each case needs to end with break!
@@ -336,24 +344,23 @@ int main(void) {
       case DRIVING: {
 
       	//Reinit pixy timer if coming from Turning
-     //  	if (pixyTimerREINIT)
-     //  	{
-     //  		app_timer_create(&pixy_timer, APP_TIMER_MODE_REPEATED, (app_timer_timeout_handler_t) pixy_timer_callback);
-  			// app_timer_start(pixy_timer, APP_TIMER_TICKS(1000), NULL); 
-  			// pixyTimerREINIT = false;
-     //  	}
-
-      	//Adjust the speed if leader not in range
-      	if (!inRange)
+      	if (pixyTimerREINIT)
       	{
-      		kobukiLeftWheelSpeedCmd = 130;
-      		kobukiRightWheelSpeedCmd = 130;
-      	} else {
-      		kobukiLeftWheelSpeedCmd = 100;
-      		kobukiRightWheelSpeedCmd = 100;
+      		app_timer_create(&pixy_timer, APP_TIMER_MODE_REPEATED, (app_timer_timeout_handler_t) pixy_timer_callback);
+  			app_timer_start(pixy_timer, APP_TIMER_TICKS(500), NULL); 
+  			pixyTimerREINIT = false;
       	}
 
-      	kobukiDriveDirect(kobukiLeftWheelSpeedCmd, kobukiRightWheelSpeedCmd);
+      	//Adjust the speed if leader not in range
+      	// if (!inRange)
+      	// {
+      	// 	kobukiLeftWheelSpeedCmd = 130;
+      	// 	kobukiRightWheelSpeedCmd = 130;
+      	// } else {
+      	// 	kobukiLeftWheelSpeedCmd = 100;
+      	// 	kobukiRightWheelSpeedCmd = 100;
+      	// }
+
 
       	//Follower move up to leader's turning location 
       	if (reinitStartEncorderVal && comingFromWaiting)
@@ -362,6 +369,7 @@ int main(void) {
       		reinitStartEncorderVal = false;
       	}
 
+      	kobukiDriveDirect(kobukiLeftWheelSpeedCmd, kobukiRightWheelSpeedCmd);
 
 
         float traveled = measure_distance(sensors.leftWheelEncoder, start_distance_encoder);
@@ -390,7 +398,8 @@ int main(void) {
 
        	  simple_ble_adv_manuf_data((uint8_t*) &stopLeaderVal, 4);
        	  app_timer_create(&adv_timer, APP_TIMER_MODE_SINGLE_SHOT, (app_timer_timeout_handler_t) timer_callback);
-           app_timer_start(adv_timer, APP_TIMER_TICKS(1000), NULL); 
+          app_timer_start(adv_timer, APP_TIMER_TICKS(1000), NULL); 
+          //pixyTimerGoodToFire = false;
 
        }
 
@@ -403,7 +412,7 @@ int main(void) {
           // display_write(buf1, DISPLAY_LINE_1);
 
          
-          kobukiDriveDirect(kobukiLeftWheelSpeedCmd, kobukiRightWheelSpeedCmd);
+          //kobukiDriveDirect(kobukiLeftWheelSpeedCmd, kobukiRightWheelSpeedCmd);
   
           
 
@@ -418,9 +427,6 @@ int main(void) {
 
         angle_turned = (int) mpu9250_read_gyro_integration().z_axis;
 
-        //Stop the pixy timer for turning
-        //app_timer_stop(&pixy_timer);
-
       
         if (angle_turned  <= adv_angle) {
           angle_turned = 0;
@@ -433,9 +439,11 @@ int main(void) {
 
           simple_ble_adv_manuf_data((uint8_t*) &startLeaderAgain, 4);
           app_timer_create(&adv_timer, APP_TIMER_MODE_SINGLE_SHOT, (app_timer_timeout_handler_t) timer_callback);
-           app_timer_start(adv_timer, APP_TIMER_TICKS(1000), NULL); 
-
-           pixyTimerREINIT = true;
+          app_timer_start(adv_timer, APP_TIMER_TICKS(500), NULL); 
+          
+          //logic for when to allow pixy to execute again
+          pixyTimerGoodToFire = false;
+          pixyTimerREINIT = false;
          
 
         } else {

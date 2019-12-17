@@ -58,7 +58,7 @@ This function also toggles LEDs on the Pixy2 for visual feedback:
 LeaderDirection pixy_ftl_locate_leader() {
   getBlocks(true, CCC_SIG1, 10);
   xpos = blocks[0].m_x;
-  printf("%d\n", xpos);
+  //printf("%d\n", xpos);
   if (numBlocks == 0 || numBlocks > 3) {
     setLED(0, 0, 255);
     return LEADER_NOT_VISIBLE;
