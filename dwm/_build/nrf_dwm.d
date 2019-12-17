@@ -1,4 +1,4 @@
-_build/main.o: main.c /usr/arm-none-eabi/include/math.h \
+_build/nrf_dwm.o: nrf_dwm.c /usr/arm-none-eabi/include/math.h \
  /usr/arm-none-eabi/include/sys/reent.h \
  /usr/arm-none-eabi/include/_ansi.h /usr/arm-none-eabi/include/newlib.h \
  /usr/arm-none-eabi/include/_newlib_version.h \
